@@ -132,7 +132,7 @@ private fun MenuCard(content: @Composable () -> Unit) {
     Column(
         modifier = Modifier
             .width(220.dp)
-            .shadow(24.dp, shape, clip = false, ambientColor = Color.Black, spotColor = Color.Black)
+            .shadow(10.dp, shape, clip = false)
             .clip(shape)
             .background(Color(0xF2262628))
             .border(0.5.dp, Color(0x33FFFFFF), shape)

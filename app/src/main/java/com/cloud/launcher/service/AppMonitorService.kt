@@ -1,7 +1,9 @@
 package com.cloud.launcher.service
 
 import android.accessibilityservice.AccessibilityService
+import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
+import com.cloud.launcher.utils.RecentsIntent
 import com.cloud.launcher.data.RecentAppsRepository
 import com.cloud.launcher.utils.PrefsManager
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +28,6 @@ class AppMonitorService : AccessibilityService() {
         val pkg = event.packageName?.toString() ?: return
         if (pkg == lastPackage) return
         if (pkg == applicationContext.packageName || pkg == "com.android.systemui") return
-        // نسجّل فقط التطبيقات التي لها أيقونة تشغيل (تطبيقات المستخدم)
         val launchable = try {
             packageManager.getLaunchIntentForPackage(pkg) != null
         } catch (e: Exception) {
@@ -38,8 +39,18 @@ class AppMonitorService : AccessibilityService() {
         scope.launch { repo.record(pkg) }
     }
 
+    override fun onKeyEvent(event: KeyEvent): Boolean {
+        val code = event.keyCode
+        if (code != KeyEvent.KEYCODE_APP_SWITCH && code != KeyEvent.KEYCODE_MENU) {
+            return super.onKeyEvent(event)
+        }
+        if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) {
+            RecentsIntent.open(applicationContext)
+        }
+        return true
+    }
+
     override fun onInterrupt() {
-        // لا شيء: الخدمة لا تقدم ملاحظات صوتية
     }
 
     override fun onDestroy() {

@@ -123,8 +123,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 _showSetup.value = true
             } else {
                 _rootAvailable.value = RootManager.isRootAvailable()
-                if (_rootAvailable.value == true && protectedRepo.current().isNotEmpty()) {
-                    ProtectionService.start(ctx)
+                if (_rootAvailable.value == true) {
+                    RootManager.enableAccessibility(ctx)
+                    refreshPermissions()
+                    if (protectedRepo.current().isNotEmpty()) ProtectionService.start(ctx)
                 }
             }
         }
@@ -210,6 +212,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             val ok = RootManager.requestRoot()
             _rootAvailable.value = ok
+            if (ok) {
+                RootManager.enableAccessibility(ctx)
+                refreshPermissions()
+            }
             if (ok && protectedRepo.current().isNotEmpty()) ProtectionService.start(ctx)
         }
     }

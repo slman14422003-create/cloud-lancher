@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,6 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
@@ -39,6 +44,7 @@ import com.cloud.launcher.ui.screens.ProtectedAppsScreen
 import com.cloud.launcher.ui.theme.CloudBlack
 import com.cloud.launcher.ui.theme.CloudLauncherTheme
 import com.cloud.launcher.utils.PermissionUtils
+import com.cloud.launcher.utils.RecentsIntent
 
 object Routes {
     const val HOME = "home"
@@ -51,21 +57,45 @@ class MainActivity : ComponentActivity() {
 
     private val vm: LauncherViewModel by viewModels()
     private val homeSignal = mutableIntStateOf(0)
+    private val recentsSignal = mutableIntStateOf(0)
+    private val recentsFromApp = mutableStateOf(false)
+    private var stopped = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        if (intent?.getBooleanExtra(RecentsIntent.EXTRA_OPEN_RECENTS, false) == true) {
+            recentsFromApp.value = true
+            recentsSignal.intValue = 1
+        }
         setContent {
             CloudLauncherTheme {
-                LauncherRoot(vm = vm, homeSignal = homeSignal.intValue)
+                LauncherRoot(
+                    vm = vm,
+                    homeSignal = homeSignal.intValue,
+                    recentsSignal = recentsSignal.intValue,
+                    recentsFromApp = recentsFromApp.value
+                )
             }
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        stopped = false
+    }
+
+    override fun onStop() {
+        stopped = true
+        super.onStop()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // زر Home أثناء عمل اللانشر: العودة إلى الشاشة الرئيسية
-        if (intent.hasCategory(Intent.CATEGORY_HOME)) {
+        if (intent.getBooleanExtra(RecentsIntent.EXTRA_OPEN_RECENTS, false)) {
+            recentsFromApp.value = stopped
+            recentsSignal.intValue = recentsSignal.intValue + 1
+        } else if (intent.hasCategory(Intent.CATEGORY_HOME)) {
             homeSignal.intValue = homeSignal.intValue + 1
         }
     }
@@ -78,9 +108,20 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int) {
+fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int, recentsSignal: Int, recentsFromApp: Boolean) {
     val context = LocalContext.current
     val nav = rememberNavController()
+    var recentsExternal by remember { mutableStateOf(false) }
+
+    fun closeRecents() {
+        if (recentsExternal) {
+            recentsExternal = false
+            nav.popBackStack(Routes.HOME, false)
+            (context as? ComponentActivity)?.moveTaskToBack(true)
+        } else {
+            nav.popBackStack()
+        }
+    }
     val showSetup by vm.showSetup.collectAsStateWithLifecycle()
 
     val notificationLauncher = rememberLauncherForActivityResult(
@@ -91,14 +132,27 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int) {
         if (homeSignal > 0) nav.popBackStack(Routes.HOME, false)
     }
 
+    LaunchedEffect(recentsSignal) {
+        if (recentsSignal > 0) {
+            val route = nav.currentBackStackEntry?.destination?.route
+            if (!recentsFromApp && route == Routes.RECENTS) {
+                closeRecents()
+            } else {
+                recentsExternal = recentsFromApp
+                nav.popBackStack(Routes.HOME, false)
+                nav.navigate(Routes.RECENTS) { launchSingleTop = true }
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize().background(CloudBlack)) {
         NavHost(
             navController = nav,
             startDestination = Routes.HOME,
-            enterTransition = { fadeIn(tween(220)) },
-            exitTransition = { fadeOut(tween(160)) },
-            popEnterTransition = { fadeIn(tween(220)) },
-            popExitTransition = { fadeOut(tween(160)) }
+            enterTransition = { fadeIn(tween(150)) },
+            exitTransition = { fadeOut(tween(110)) },
+            popEnterTransition = { fadeIn(tween(150)) },
+            popExitTransition = { fadeOut(tween(110)) }
         ) {
             composable(Routes.HOME) {
                 HomeScreen(
@@ -123,7 +177,9 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int) {
                 AppDrawerScreen(vm = vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.RECENTS) {
-                CustomRecentsScreen(vm = vm, onBack = { nav.popBackStack() })
+                BackHandler { closeRecents() }
+                DisposableEffect(Unit) { onDispose { recentsExternal = false } }
+                CustomRecentsScreen(vm = vm, onBack = { closeRecents() })
             }
             composable(Routes.PROTECTED) {
                 ProtectedAppsScreen(vm = vm, onBack = { nav.popBackStack() })

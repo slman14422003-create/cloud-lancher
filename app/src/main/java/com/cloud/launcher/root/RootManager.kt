@@ -1,5 +1,10 @@
 package com.cloud.launcher.root
 
+import android.content.ComponentName
+import android.content.Context
+import android.provider.Settings
+import com.cloud.launcher.service.AppMonitorService
+import com.cloud.launcher.utils.PermissionUtils
 import com.cloud.launcher.utils.ShellUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -9,10 +14,8 @@ object RootManager {
     @Volatile
     private var granted: Boolean = false
 
-    /** آخر حالة معروفة للروت دون تشغيل أي أمر. */
     val isGranted: Boolean get() = granted
 
-    /** يتحقق من توفر الروت عبر `su -c id`. */
     suspend fun isRootAvailable(): Boolean = withContext(Dispatchers.IO) {
         val result = ShellUtils.runAsRoot("id", 30_000L)
         val ok = result.stdout.contains("uid=0")
@@ -20,7 +23,6 @@ object RootManager {
         ok
     }
 
-    /** يطلب صلاحية الروت لأول مرة (تظهر نافذة Magisk للمستخدم). */
     suspend fun requestRoot(): Boolean = withContext(Dispatchers.IO) {
         val result = ShellUtils.runAsRoot("id", 60_000L)
         val ok = result.stdout.contains("uid=0")
@@ -40,4 +42,18 @@ object RootManager {
 
     suspend fun executeCommands(cmds: List<String>): String =
         executeCommand(cmds.joinToString("\n"))
+
+    suspend fun enableAccessibility(context: Context): Boolean = withContext(Dispatchers.IO) {
+        if (PermissionUtils.isAccessibilityEnabled(context)) return@withContext true
+        val component = ComponentName(context, AppMonitorService::class.java).flattenToString()
+        val current = Settings.Secure.getString(
+            context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )
+        val value = if (current.isNullOrBlank() || current == "null") component else "$current:$component"
+        ShellUtils.runAsRoot(
+            "settings put secure enabled_accessibility_services $value\n" +
+                "settings put secure accessibility_enabled 1"
+        )
+        PermissionUtils.isAccessibilityEnabled(context)
+    }
 }

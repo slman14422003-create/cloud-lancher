@@ -55,7 +55,7 @@ object IconCache {
         if (cached != null) return@withContext cached
         try {
             val drawable = context.packageManager.getApplicationIcon(packageName)
-            val bitmap = drawable.toBitmap(128, 128, Bitmap.Config.ARGB_8888).asImageBitmap()
+            val bitmap = drawable.toBitmap(112, 112, Bitmap.Config.ARGB_8888).asImageBitmap()
             cache.put(packageName, bitmap)
             bitmap
         } catch (e: Exception) {
