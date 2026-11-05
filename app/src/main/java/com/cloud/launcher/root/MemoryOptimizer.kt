@@ -16,54 +16,31 @@ import kotlinx.coroutines.withContext
 object MemoryOptimizer {
 
     private const val MB = 1024L * 1024L
-    private const val MIN_INTERVAL_MS = 20_000L
-    private const val PRESSURE_RATIO = 0.42f
-    private const val SCREEN_OFF_RATIO = 0.65f
-    private const val MIN_ADJ = 500
+    private const val MIN_INTERVAL_MS = 12_000L
+    private const val PRESSURE_RATIO = 0.25f
+    private const val SCREEN_OFF_RATIO = 0.90f
+    private const val MIN_ADJ = 300
 
     private val CORE_PREFIXES = listOf(
         "android",
         "system",
         "com.android.systemui",
         "com.android.phone",
-        "com.android.server",
-        "com.android.providers.",
+        "com.android.server.telecom",
+        "com.android.providers.settings",
+        "com.android.providers.telephony",
         "com.android.bluetooth",
         "com.android.nfc",
-        "com.android.settings",
         "com.android.shell",
-        "com.android.location",
         "com.android.inputdevices",
         "com.android.keychain",
         "com.android.se",
-        "com.android.incallui",
-        "com.android.cellbroadcastreceiver",
-        "com.android.emergency",
-        "com.android.stk",
-        "com.android.wallpaper",
-        "com.google.android.gms",
-        "com.google.android.gsf",
-        "com.google.process.",
-        "com.qualcomm.",
-        "com.qti.",
-        "com.mediatek.",
-        "com.samsung.android.incallui",
-        "com.samsung.android.providers.",
-        "com.samsung.android.server.",
         "com.sec.phone",
         "com.sec.imsservice",
         "com.sec.epdg",
-        "com.sec.android.app.launcher",
-        "com.sec.android.inputmethod",
-        "com.samsung.android.knox",
-        "com.samsung.android.bluetooth",
-        "com.samsung.android.network",
-        "com.samsung.android.app.telephonyui",
-        "com.samsung.android.dialer",
-        "com.samsung.android.messaging",
-        "com.samsung.accessibility",
-        "com.samsung.android.smartcallprovider",
-        "com.samsung.android.scs"
+        "com.qualcomm.",
+        "com.qti.",
+        "com.mediatek."
     )
 
     private val mutex = Mutex()
@@ -182,7 +159,7 @@ object MemoryOptimizer {
             script.append("export PATH=/system/bin:/system/xbin:/sbin:/vendor/bin:\$PATH\n")
             var n = 0
             for (pkg in targets) {
-                script.append("(am kill --user 0 $pkg >/dev/null 2>&1 || am kill $pkg >/dev/null 2>&1) &\n")
+                script.append("(am force-stop --user 0 $pkg >/dev/null 2>&1 || am force-stop $pkg >/dev/null 2>&1; for P in \$(pidof $pkg); do kill -9 \$P 2>/dev/null; done) &\n")
                 n++
                 if (n % 4 == 0) script.append("wait\n")
             }

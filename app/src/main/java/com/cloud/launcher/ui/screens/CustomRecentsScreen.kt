@@ -506,11 +506,12 @@ private fun MemoryCard(
                     checked = auto,
                     onCheckedChange = onAuto,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = CloudWhite,
-                        checkedTrackColor = CloudAccent,
-                        uncheckedThumbColor = CloudGray,
-                        uncheckedTrackColor = Color(0x26FFFFFF),
-                        uncheckedBorderColor = Color(0x33FFFFFF)
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = Color(0xFF34C759),
+                        checkedBorderColor = Color(0xFF34C759),
+                        uncheckedThumbColor = Color(0xFFB0B0B8),
+                        uncheckedTrackColor = Color(0xFF2C2C30),
+                        uncheckedBorderColor = Color(0xFF5A5A62)
                     )
                 )
             }
