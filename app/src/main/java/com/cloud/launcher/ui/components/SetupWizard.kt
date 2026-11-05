@@ -157,8 +157,12 @@ fun SetupWizard(vm: LauncherViewModel, onRequestNotifications: () -> Unit, onFin
                 }
                 4 -> StepFrame(Icons.Filled.Memory, R.string.setup_step_system_title, R.string.setup_step_system_body) {
                     StatusRow(stringResource(R.string.setup_system_app), setup.systemApp, null) {}
-                    if (!setup.systemApp) {
+                    if (!setup.systemApp || setup.systemUpdated) {
                         Spacer(Modifier.height(12.dp))
+                        if (setup.systemUpdated) {
+                            Text(stringResource(R.string.setup_system_updated_note), color = CloudGray, style = MaterialTheme.typography.bodyMedium)
+                            Spacer(Modifier.height(12.dp))
+                        }
                         when (install.phase) {
                             LauncherViewModel.InstallPhase.COPIED -> {
                                 Text(stringResource(R.string.setup_system_copied), color = CloudSuccess, style = MaterialTheme.typography.bodyMedium)
@@ -175,7 +179,7 @@ fun SetupWizard(vm: LauncherViewModel, onRequestNotifications: () -> Unit, onFin
                                     Text(stringResource(R.string.setup_system_failed), color = CloudDanger, style = MaterialTheme.typography.bodyMedium)
                                     Spacer(Modifier.height(12.dp))
                                 }
-                                PrimaryButton(stringResource(R.string.setup_install_system), enabled = root == true) {
+                                PrimaryButton(stringResource(if (setup.systemUpdated) R.string.setup_merge_update else R.string.setup_install_system), enabled = root == true) {
                                     vm.installAsSystem()
                                 }
                             }

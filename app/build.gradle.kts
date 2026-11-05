@@ -5,6 +5,9 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+val autoVersionCode: Int =
+    System.getenv("VERSION_CODE")?.toIntOrNull() ?: (System.currentTimeMillis() / 60000L).toInt()
+
 android {
     namespace = "com.cloud.launcher"
     compileSdk = 34
@@ -13,8 +16,8 @@ android {
         applicationId = "com.cloud.launcher"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = autoVersionCode
+        versionName = "1.0.$autoVersionCode"
     }
 
     signingConfigs {
@@ -30,6 +33,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("release")
+        }
         release {
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true

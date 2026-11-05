@@ -49,7 +49,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         val battery: Boolean = false,
         val secureSettings: Boolean = false,
         val defaultLauncher: Boolean = false,
-        val systemApp: Boolean = false
+        val systemApp: Boolean = false,
+        val systemUpdated: Boolean = false
     )
 
     enum class InstallPhase { IDLE, RUNNING, COPIED, FAILED }
@@ -333,7 +334,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             battery = PermissionUtils.isIgnoringBatteryOptimizations(ctx),
             secureSettings = PermissionUtils.hasWriteSecureSettings(ctx),
             defaultLauncher = PermissionUtils.isDefaultLauncher(ctx),
-            systemApp = PermissionUtils.isSystemApp(ctx)
+            systemApp = PermissionUtils.isSystemApp(ctx),
+            systemUpdated = PermissionUtils.isUpdatedSystemApp(ctx)
         )
     }
 

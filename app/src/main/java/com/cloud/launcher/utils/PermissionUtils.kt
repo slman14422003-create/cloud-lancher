@@ -126,6 +126,9 @@ object PermissionUtils {
     fun isSystemApp(context: Context): Boolean =
         (context.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
 
+    fun isUpdatedSystemApp(context: Context): Boolean =
+        (context.applicationInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+
     fun openOverlaySettings(context: Context) {
         startSafely(
             context,
