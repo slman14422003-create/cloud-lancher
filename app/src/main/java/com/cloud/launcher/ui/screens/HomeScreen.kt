@@ -170,11 +170,6 @@ fun HomeScreen(
                 }
             }
 
-            SearchPill(
-                onClick = currentOpenDrawer,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
-            )
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -236,27 +231,6 @@ private fun HintHost(visible: Boolean, onOpenDrawer: () -> Unit, modifier: Modif
         modifier = modifier
     ) {
         EmptyHomeCard(onOpenDrawer = onOpenDrawer)
-    }
-}
-
-@Composable
-private fun SearchPill(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val shape = RoundedCornerShape(50)
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .liquidGlass(shape)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(Icons.Filled.Search, contentDescription = null, tint = CloudAccent, modifier = Modifier.size(20.dp))
-        Spacer(Modifier.width(10.dp))
-        Text(
-            text = stringResource(R.string.search_hint),
-            color = CloudGray,
-            style = MaterialTheme.typography.bodyMedium
-        )
     }
 }
 
