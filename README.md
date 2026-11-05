@@ -1,4 +1,4 @@
-# Cloud Launcher
+# Cloud Launcher (iOS 26 style)
 
 لانشر أندرويد (Kotlin + Jetpack Compose) بواجهة سوداء، مع قائمة "الأخيرة المخصصة" وحماية التطبيقات عبر الروت.
 Package: `com.cloud.launcher` — minSdk 24 / targetSdk 34.

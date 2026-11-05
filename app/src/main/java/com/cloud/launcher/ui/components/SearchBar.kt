@@ -37,10 +37,10 @@ fun CloudSearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Mod
                 }
             }
         },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(26.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = CloudSurfaceHigh,
-            unfocusedContainerColor = CloudSurfaceHigh,
+            focusedContainerColor = Color(0x26FFFFFF),
+            unfocusedContainerColor = Color(0x26FFFFFF),
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             focusedTextColor = CloudWhite,

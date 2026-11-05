@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 class LauncherViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
-        const val MAX_FAVORITES = 20
+        const val MAX_FAVORITES = 5
     }
 
     data class SetupState(

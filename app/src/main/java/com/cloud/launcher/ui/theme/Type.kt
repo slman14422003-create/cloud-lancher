@@ -9,9 +9,9 @@ import androidx.compose.ui.unit.sp
 val CloudTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Light,
-        fontSize = 76.sp,
-        letterSpacing = (-2).sp
+        fontWeight = FontWeight.Bold,
+        fontSize = 92.sp,
+        letterSpacing = (-3).sp
     ),
     titleLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,

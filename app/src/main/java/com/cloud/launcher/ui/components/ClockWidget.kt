@@ -35,6 +35,6 @@ fun ClockWidget(modifier: Modifier = Modifier) {
 
     Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = time, color = CloudWhite, style = MaterialTheme.typography.displayLarge)
-        Text(text = date, color = CloudGray, style = MaterialTheme.typography.bodyLarge)
+        Text(text = date, color = CloudGray, style = MaterialTheme.typography.titleMedium)
     }
 }

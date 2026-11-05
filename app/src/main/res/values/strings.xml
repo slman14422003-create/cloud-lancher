@@ -6,7 +6,7 @@
     <string name="home_recents">الأخيرة</string>
     <string name="home_protected">المحمية</string>
     <string name="home_setup">الإعداد</string>
-    <string name="home_hint">اسحب للأعلى لفتح المكتبة، واضغط مطولاً على أي تطبيق لإضافته هنا</string>
+    <string name="home_hint">اضغط مطولاً على أي تطبيق في المكتبة لإضافته إلى شريط المفضلة</string>
 
     <string name="search_hint">ابحث عن تطبيق</string>
     <string name="sort_az">ترتيب أبجدي</string>
@@ -45,7 +45,7 @@
     <string name="toast_no_root_protect">تم الحفظ، لكن الحماية الفعلية تحتاج صلاحية الروت</string>
     <string name="toast_launch_failed">تعذّر فتح التطبيق</string>
     <string name="toast_protection_applied">تم تطبيق الحماية</string>
-    <string name="toast_home_limit">الشاشة الرئيسية تتسع لـ 20 تطبيقاً</string>
+    <string name="toast_home_limit">شريط المفضلة يتسع لـ 5 تطبيقات</string>
 
     <string name="setup_title">الإعداد الأولي</string>
     <string name="setup_root">صلاحية الروت</string>
@@ -64,4 +64,5 @@
     <string name="notif_text">Cloud Launcher يراقب التطبيقات المحمية كل 3 ثوانٍ</string>
 
     <string name="accessibility_desc">يسجّل التطبيقات التي تفتحها فقط لعرضها في قائمة الأخيرة المخصصة. لا يقرأ أي محتوى من الشاشة.</string>
+    <string name="home_favorites_empty">شريط المفضلة فارغ</string>
 </resources>
