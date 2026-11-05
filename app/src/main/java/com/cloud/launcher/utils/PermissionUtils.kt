@@ -1,6 +1,11 @@
 package com.cloud.launcher.utils
 
+import android.Manifest
 import android.app.AppOpsManager
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.os.PowerManager
+import androidx.core.content.ContextCompat
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -90,5 +95,51 @@ object PermissionUtils {
 
     fun uninstall(context: Context, pkg: String) {
         startSafely(context, Intent(Intent.ACTION_DELETE, Uri.parse("package:$pkg")))
+    }
+
+    fun isDefaultLauncher(context: Context): Boolean {
+        return try {
+            val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+            val info = context.packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+            info?.activityInfo?.packageName == context.packageName
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun canDrawOverlays(context: Context): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(context)
+
+    fun isIgnoringBatteryOptimizations(context: Context): Boolean {
+        return try {
+            val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+            pm.isIgnoringBatteryOptimizations(context.packageName)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun hasWriteSecureSettings(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_SECURE_SETTINGS) ==
+            PackageManager.PERMISSION_GRANTED
+
+    fun isSystemApp(context: Context): Boolean =
+        (context.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+
+    fun openOverlaySettings(context: Context) {
+        startSafely(
+            context,
+            Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.packageName))
+        )
+    }
+
+    fun requestIgnoreBatteryOptimizations(context: Context) {
+        val direct = Intent(
+            Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            Uri.parse("package:" + context.packageName)
+        )
+        if (!startSafely(context, direct)) {
+            startSafely(context, Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+        }
     }
 }

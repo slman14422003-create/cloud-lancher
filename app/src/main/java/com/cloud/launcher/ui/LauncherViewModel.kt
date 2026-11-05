@@ -19,6 +19,7 @@ import com.cloud.launcher.root.OomController
 import com.cloud.launcher.root.ProcessManager
 import com.cloud.launcher.root.RootManager
 import com.cloud.launcher.root.RunningApp
+import com.cloud.launcher.root.SystemInstaller
 import com.cloud.launcher.service.ProtectionService
 import com.cloud.launcher.ui.components.IconCache
 import com.cloud.launcher.utils.PermissionUtils
@@ -42,8 +43,17 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     data class SetupState(
         val usageAccess: Boolean = false,
         val accessibility: Boolean = false,
-        val notifications: Boolean = false
+        val notifications: Boolean = false,
+        val overlay: Boolean = false,
+        val battery: Boolean = false,
+        val secureSettings: Boolean = false,
+        val defaultLauncher: Boolean = false,
+        val systemApp: Boolean = false
     )
+
+    enum class InstallPhase { IDLE, RUNNING, COPIED, FAILED }
+
+    data class SystemInstallState(val phase: InstallPhase = InstallPhase.IDLE, val log: String = "")
 
     private val ctx: Context = application.applicationContext
     private val prefs = PrefsManager(ctx)
@@ -96,6 +106,9 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     private val _setup = MutableStateFlow(SetupState())
     val setup: StateFlow<SetupState> = _setup.asStateFlow()
+
+    private val _systemInstall = MutableStateFlow(SystemInstallState())
+    val systemInstall: StateFlow<SystemInstallState> = _systemInstall.asStateFlow()
 
     private val _showSetup = MutableStateFlow(false)
     val showSetup: StateFlow<Boolean> = _showSetup.asStateFlow()
@@ -299,8 +312,56 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         _setup.value = SetupState(
             usageAccess = PermissionUtils.hasUsageAccess(ctx),
             accessibility = PermissionUtils.isAccessibilityEnabled(ctx),
-            notifications = NotificationManagerCompat.from(ctx).areNotificationsEnabled()
+            notifications = NotificationManagerCompat.from(ctx).areNotificationsEnabled(),
+            overlay = PermissionUtils.canDrawOverlays(ctx),
+            battery = PermissionUtils.isIgnoringBatteryOptimizations(ctx),
+            secureSettings = PermissionUtils.hasWriteSecureSettings(ctx),
+            defaultLauncher = PermissionUtils.isDefaultLauncher(ctx),
+            systemApp = PermissionUtils.isSystemApp(ctx)
         )
+    }
+
+    fun grantAllViaRoot() {
+        viewModelScope.launch {
+            if (!RootManager.isGranted) {
+                toast(str(R.string.root_required))
+                return@launch
+            }
+            RootManager.grantAllPermissions(ctx)
+            refreshPermissions()
+            toast(str(R.string.toast_granted_all))
+        }
+    }
+
+    fun setDefaultViaRoot() {
+        viewModelScope.launch {
+            if (!RootManager.isGranted) {
+                toast(str(R.string.root_required))
+                return@launch
+            }
+            val ok = RootManager.setDefaultLauncher(ctx)
+            refreshPermissions()
+            toast(str(if (ok) R.string.toast_default_set else R.string.toast_default_failed))
+        }
+    }
+
+    fun installAsSystem() {
+        viewModelScope.launch {
+            if (!RootManager.isGranted) {
+                toast(str(R.string.root_required))
+                return@launch
+            }
+            _systemInstall.value = SystemInstallState(InstallPhase.RUNNING)
+            val result = SystemInstaller.install(ctx)
+            _systemInstall.value = SystemInstallState(
+                if (result.ok) InstallPhase.COPIED else InstallPhase.FAILED,
+                result.log
+            )
+        }
+    }
+
+    fun rebootToApplySystem() {
+        viewModelScope.launch { SystemInstaller.removeUserCopyAndReboot(ctx) }
     }
 
     fun openSetup() {

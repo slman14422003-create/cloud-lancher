@@ -36,7 +36,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.cloud.launcher.ui.LauncherViewModel
-import com.cloud.launcher.ui.components.SetupDialog
+import com.cloud.launcher.ui.components.SetupWizard
 import com.cloud.launcher.ui.screens.AppDrawerScreen
 import com.cloud.launcher.ui.screens.CustomRecentsScreen
 import com.cloud.launcher.ui.screens.HomeScreen
@@ -188,7 +188,7 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int, recentsSignal: Int, rec
     }
 
     if (showSetup) {
-        SetupDialog(
+        SetupWizard(
             vm = vm,
             onRequestNotifications = {
                 if (Build.VERSION.SDK_INT >= 33) {
@@ -197,7 +197,7 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int, recentsSignal: Int, rec
                     PermissionUtils.openNotificationSettings(context)
                 }
             },
-            onDismiss = { vm.finishSetup() }
+            onFinish = { vm.finishSetup() }
         )
     }
 }
