@@ -27,3 +27,14 @@
 
 ## Notes
 - Not built in the sandbox. Check assembleRelease (R8 rules in proguard-rules.pro) and test the J5 key: if the left key does not open the launcher recents, the accessibility service is not enabled or the firmware handles the key before filtering.
+
+## Task: setup wizard, default launcher detection, system app, permissions
+- SetupDialog removed. New full-screen SetupWizard (ui/components/SetupWizard.kt), 6 steps: welcome, root, permissions, default launcher, system app, done. Shown automatically only on first run; completion/skip is stored in DataStore (setup_shown). Reopen from the home menu (Setup entry).
+- Default launcher row used to be hard-coded as not granted. Now PermissionUtils.isDefaultLauncher resolves the HOME intent and compares the package; state refreshes on ON_RESUME.
+- Root helpers (RootManager): grantAllPermissions (pm grant, appops, deviceidle whitelist, accessibility), setDefaultLauncher (cmd role / set-home-activity), enableAccessibility now tries WRITE_SECURE_SETTINGS directly first.
+- System app: root/SystemInstaller.kt copies the APK to /system/priv-app/CloudLauncher and installs res/raw/privapp_permissions.xml to /system/etc/permissions, then removeUserCopyAndReboot deletes the /data copy and reboots (user data is kept).
+- Manifest: added REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, WAKE_LOCK, VIBRATE, REORDER_TASKS, SET_WALLPAPER(_HINTS), and privileged GET_TASKS, REAL_GET_TASKS, FORCE_STOP_PACKAGES, WRITE_SECURE_SETTINGS; android:persistent=true (effective only as system app).
+- RULE: every privileged permission requested in the manifest must also be listed in privapp_permissions.xml, otherwise Android 9+ can refuse to boot with the app in priv-app.
+
+## Notes
+- Not built in the sandbox. Test the system install on the J5 (Android 7 ignores privapp xml, harmless). On Android 10+ /system is read-only and the installer will report failure.

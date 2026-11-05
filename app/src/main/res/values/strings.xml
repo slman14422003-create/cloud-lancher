@@ -67,4 +67,34 @@
 
     <string name="accessibility_desc">يسجّل التطبيقات التي تفتحها فقط لعرضها في قائمة الأخيرة المخصصة. لا يقرأ أي محتوى من الشاشة.</string>
     <string name="home_favorites_empty">شريط المفضلة فارغ</string>
+    <string name="toast_granted_all">تم منح الأذونات المتاحة عبر الروت</string>
+    <string name="toast_default_set">تم تعيين Cloud Launcher كلانشر افتراضي</string>
+    <string name="toast_default_failed">تعذر التعيين بالروت، استخدم إعدادات النظام</string>
+    <string name="setup_overlay">العرض فوق التطبيقات</string>
+    <string name="setup_battery">استثناء من توفير البطارية</string>
+    <string name="setup_secure">تعديل إعدادات النظام الآمنة</string>
+    <string name="setup_system_app">تطبيق نظام (priv-app)</string>
+    <string name="setup_next">التالي</string>
+    <string name="setup_back">السابق</string>
+    <string name="setup_skip">تخطي</string>
+    <string name="setup_finish">ابدأ الاستخدام</string>
+    <string name="setup_grant_all_root">منح كل الأذونات بالروت</string>
+    <string name="setup_set_root">تعيين بالروت</string>
+    <string name="setup_set_settings">تعيين من الإعدادات</string>
+    <string name="setup_install_system">تثبيت كتطبيق نظام</string>
+    <string name="setup_installing">جارٍ النسخ إلى النظام…</string>
+    <string name="setup_reboot">إعادة التشغيل لإكمال التثبيت</string>
+    <string name="setup_system_copied">تم نسخ التطبيق إلى /system/priv-app. أعد تشغيل الجهاز لإكمال التحويل (سيُحذف نسخة المستخدم وتبقى بياناتك).</string>
+    <string name="setup_system_failed">فشل التثبيت. قد يكون قسم النظام للقراءة فقط على هذا الإصدار.</string>
+    <string name="setup_welcome_title">أهلاً بك في Cloud Launcher</string>
+    <string name="setup_welcome_body">سنجهّز اللانشر في خطوات قصيرة: الروت، الأذونات، اللانشر الافتراضي، وتحويله إلى تطبيق نظام. تُحفظ النتيجة محلياً ولا تظهر هذه الشاشة تلقائياً مرة ثانية، ويمكنك فتحها من قائمة النقاط.</string>
+    <string name="setup_step_root_title">صلاحية الروت</string>
+    <string name="setup_step_perm_title">الأذونات</string>
+    <string name="setup_step_perm_body">امنح الأذونات يدوياً من كل زر، أو اضغط منح الكل بالروت لتفعيلها دفعة واحدة.</string>
+    <string name="setup_step_default_title">اللانشر الافتراضي</string>
+    <string name="setup_step_default_body">اجعل Cloud Launcher هو الشاشة الرئيسية. تتحدث الحالة تلقائياً عند العودة من الإعدادات.</string>
+    <string name="setup_step_system_title">تطبيق نظام</string>
+    <string name="setup_step_system_body">ينسخ التطبيق إلى /system/priv-app مع ملف أذونات الامتيازات، فتُمنح الأذونات المميزة (إيقاف التطبيقات، إعدادات النظام الآمنة، المهام) بدون روت في كل مرة. يحتاج الروت وإعادة تشغيل.</string>
+    <string name="setup_done_title">اكتمل الإعداد</string>
+    <string name="setup_done_body">تم حفظ حالة الإعداد محلياً. يمكنك إعادة فتحه في أي وقت من قائمة النقاط.</string>
 </resources>
