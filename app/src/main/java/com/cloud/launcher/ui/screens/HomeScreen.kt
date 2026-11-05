@@ -2,7 +2,6 @@ package com.cloud.launcher.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -15,15 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -47,11 +38,10 @@ import com.cloud.launcher.ui.LauncherViewModel
 import com.cloud.launcher.ui.components.AppContextMenu
 import com.cloud.launcher.ui.components.AppIcon
 import com.cloud.launcher.ui.components.ClockWidget
+import com.cloud.launcher.ui.components.HomeMenuButton
 import com.cloud.launcher.ui.components.liquidGlass
-import com.cloud.launcher.ui.theme.CloudAccent
 import com.cloud.launcher.ui.theme.CloudBlack
 import com.cloud.launcher.ui.theme.CloudGray
-import com.cloud.launcher.ui.theme.CloudWhite
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -70,10 +60,10 @@ fun HomeScreen(
         favorites.mapNotNull { appMap[it] }.take(LauncherViewModel.MAX_FAVORITES)
     }
 
+    Box(modifier = Modifier.fillMaxSize().background(CloudBlack)) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(CloudBlack)
             .statusBarsPadding()
             .navigationBarsPadding()
             .pointerInput(Unit) {
@@ -98,21 +88,8 @@ fun HomeScreen(
             }
         }
 
-        // أزرار الأقسام (كما كانت): المكتبة / الأخيرة / المحمية / الإعداد
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ShortcutButton(Icons.Filled.Apps, stringResource(R.string.home_library), onOpenDrawer)
-            ShortcutButton(Icons.Filled.History, stringResource(R.string.home_recents), onOpenRecents)
-            ShortcutButton(Icons.Filled.Security, stringResource(R.string.home_protected), onOpenProtected)
-            ShortcutButton(Icons.Filled.Settings, stringResource(R.string.home_setup)) { vm.openSetup() }
-        }
+        Spacer(Modifier.height(8.dp))
 
-        Spacer(Modifier.height(20.dp))
-
-        // شريط المفضلة العائم
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -148,25 +125,17 @@ fun HomeScreen(
         }
     }
 
-    menuApp?.let { app -> AppContextMenu(app = app, vm = vm, onDismiss = { menuApp = null }) }
-}
-
-@Composable
-private fun ShortcutButton(icon: ImageVector, label: String, onClick: () -> Unit) {
-    Column(
+    HomeMenuButton(
+        onOpenLibrary = onOpenDrawer,
+        onOpenRecents = onOpenRecents,
+        onOpenProtected = onOpenProtected,
+        onOpenSetup = { vm.openSetup() },
         modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 6.dp, vertical = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier.size(60.dp).liquidGlass(RoundedCornerShape(20.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(icon, contentDescription = label, tint = CloudAccent)
-        }
-        Spacer(Modifier.height(6.dp))
-        Text(label, color = CloudWhite, style = MaterialTheme.typography.labelSmall)
+            .align(Alignment.TopEnd)
+            .statusBarsPadding()
+            .padding(top = 10.dp, end = 20.dp)
+    )
     }
+
+    menuApp?.let { app -> AppContextMenu(app = app, vm = vm, onDismiss = { menuApp = null }) }
 }
