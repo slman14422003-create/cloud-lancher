@@ -23,6 +23,8 @@
 
     <string name="recents_title">الأخيرة المخصصة</string>
     <string name="recents_empty">لا توجد تطبيقات حديثة بعد. فعّل خدمة التتبع أو صلاحية الاستخدام من الإعداد.</string>
+    <string name="recents_ram">الذاكرة المتاحة %1$d من %2$d MB</string>
+    <string name="recents_count">%1$d تطبيق</string>
     <string name="kill_all">إغلاق الكل</string>
     <string name="status_not_running">غير قيد التشغيل</string>
     <string name="status_unknown">الحالة غير معروفة (بدون روت)</string>
