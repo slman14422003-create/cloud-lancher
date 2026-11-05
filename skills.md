@@ -49,3 +49,13 @@
 ## Notes
 - Limits: no userspace method can make a process absolutely unkillable. oom_score_adj -1000 survives lmkd, but ActivityManager can reset it on state changes (re-applied within 2s), and the user can still force-stop from system settings.
 - Drag is not tested on device; check the drag feel on the J5 (spring stiffness in ReorderableAppGrid).
+
+## Task: updates over the system app
+- Cause: versionCode was fixed at 1. For a system app, PackageManager keeps a /data update only if its versionCode is greater than the /system copy; equal or lower means the update is dropped on reboot (or refused as a downgrade).
+- app/build.gradle.kts: versionCode is now autoVersionCode (env VERSION_CODE if set, otherwise minutes since epoch), versionName 1.0.<code>. Every build is newer than the previous one, no manual bump needed.
+- Debug builds are signed with the same release keystore (cloud-release.jks), so debug and release can update each other and the system copy. A different signature gives INSTALL_FAILED_UPDATE_INCOMPATIBLE.
+- Wizard system step: if the app is an updated system app (FLAG_UPDATED_SYSTEM_APP) it offers "merge update into system", which copies the current APK to /system/priv-app and reboots; the old /data copy is then dropped automatically.
+
+## Notes
+- Normal update flow: install the new APK over the current one, no reboot needed. The system copy only needs refreshing through the wizard if you want the update to survive a factory reset.
+- The system copy installed earlier has versionCode 1, so any build from now on is accepted as an update.

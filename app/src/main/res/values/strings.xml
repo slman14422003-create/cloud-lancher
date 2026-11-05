@@ -100,4 +100,6 @@
     <string name="menu_add_favorite">إضافة إلى شريط المفضلة</string>
     <string name="menu_remove_favorite">إزالة من شريط المفضلة</string>
     <string name="toast_grid_limit">الشاشة الرئيسية تتسع لـ 16 تطبيقاً</string>
+    <string name="setup_system_updated_note">هذه نسخة محدّثة فوق نسخة النظام. يمكنك دمجها داخل النظام لتبقى بعد إعادة ضبط المصنع.</string>
+    <string name="setup_merge_update">دمج التحديث داخل النظام</string>
 </resources>
