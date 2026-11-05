@@ -28,3 +28,9 @@ Package: `com.cloud.launcher` — minSdk 24 / targetSdk 34.
 - [x] حماية الروت (oom_adj / oom_score_adj / renice / deviceidle / standby-bucket)
 - [x] Foreground Service كل 3 ثوانٍ — [x] AccessibilityService — [x] BootReceiver
 - [x] DataStore — [x] حد 5 تطبيقات محمية — [x] Android 7 → 14
+
+## التوقيع (Release)
+- المفتاح `cloud-release.jks` (alias: `cloud`) صلاحيته 40 سنة، وبياناته في `keystore.properties`.
+- **احتفظ بالمستودع Private** لأن المفتاح وكلمة السر داخله. للأمان الأفضل احذفهما من المستودع واستخدم GitHub Secrets (`KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`).
+- الأمر: `gradle assembleRelease` والناتج في `app/build/outputs/apk/release/`.
+- لا تفقد الملف: بدونه لا يمكن تحديث التطبيق فوق نسخة موقّعة به.

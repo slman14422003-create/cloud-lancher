@@ -1,4 +1,4 @@
-name: Build Debug APK
+name: Build Release APK
 
 on:
   push:
@@ -17,8 +17,8 @@ jobs:
         with:
           gradle-version: 8.7
       - name: Build
-        run: gradle assembleDebug --stacktrace
+        run: gradle assembleRelease --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: CloudLauncher-debug
-          path: app/build/outputs/apk/debug/*.apk
+          name: CloudLauncher-release
+          path: app/build/outputs/apk/release/*.apk
