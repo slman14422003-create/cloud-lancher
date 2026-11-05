@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +46,7 @@ fun AppContextMenu(app: AppInfo, vm: LauncherViewModel, onDismiss: () -> Unit) {
     val favorites by vm.favorites.collectAsStateWithLifecycle()
     val homeApps by vm.homeApps.collectAsStateWithLifecycle()
     val protectedPkgs by vm.protectedPkgs.collectAsStateWithLifecycle()
+    val hiddenPkgs by vm.hiddenPkgs.collectAsStateWithLifecycle()
     val recents by vm.recentPkgs.collectAsStateWithLifecycle()
     val root by vm.rootAvailable.collectAsStateWithLifecycle()
     val pkg = app.packageName
@@ -84,6 +87,13 @@ fun AppContextMenu(app: AppInfo, vm: LauncherViewModel, onDismiss: () -> Unit) {
                 text = stringResource(if (pkg in protectedPkgs) R.string.menu_remove_protect else R.string.menu_add_protect)
             ) {
                 vm.toggleProtect(pkg)
+                onDismiss()
+            }
+            MenuItem(
+                icon = if (pkg in hiddenPkgs) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                text = stringResource(if (pkg in hiddenPkgs) R.string.menu_unhide else R.string.menu_hide)
+            ) {
+                vm.toggleHidden(pkg)
                 onDismiss()
             }
             if (pkg !in recents) {

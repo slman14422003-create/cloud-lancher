@@ -237,6 +237,12 @@ fun LauncherSettingsScreen(vm: LauncherViewModel, onBack: () -> Unit) {
                             AppIcon(packageName = app.packageName, size = s.drawerIconSize.dp)
                         }
                     }
+                    Label(stringResource(R.string.settings_favorites_count))
+                    Chips(
+                        options = listOf(3, 4, 5).map { it to it.toString() },
+                        selected = s.favoritesCount,
+                        onSelect = { v -> vm.updateSettings { it.copy(favoritesCount = v) } }
+                    )
                     Label(stringResource(R.string.settings_layout))
                     Chips(
                         options = listOf(

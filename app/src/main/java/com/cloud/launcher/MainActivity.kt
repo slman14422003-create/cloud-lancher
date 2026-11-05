@@ -37,6 +37,7 @@ import com.cloud.launcher.ui.LauncherViewModel
 import com.cloud.launcher.ui.components.SetupWizard
 import com.cloud.launcher.ui.screens.AppDrawerScreen
 import com.cloud.launcher.ui.screens.CustomRecentsScreen
+import com.cloud.launcher.ui.screens.HiddenAppsScreen
 import com.cloud.launcher.ui.screens.HomeScreen
 import com.cloud.launcher.ui.screens.LauncherSettingsScreen
 import com.cloud.launcher.ui.screens.ProtectedAppsScreen
@@ -51,6 +52,7 @@ object Routes {
     const val RECENTS = "recents"
     const val PROTECTED = "protected"
     const val SETTINGS = "settings"
+    const val HIDDEN = "hidden"
 }
 
 class MainActivity : ComponentActivity() {
@@ -161,7 +163,8 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int, recentsSignal: Int, rec
                     onOpenDrawer = { nav.navigate(Routes.DRAWER) { launchSingleTop = true } },
                     onOpenRecents = { nav.navigate(Routes.RECENTS) { launchSingleTop = true } },
                     onOpenProtected = { nav.navigate(Routes.PROTECTED) { launchSingleTop = true } },
-                    onOpenSettings = { nav.navigate(Routes.SETTINGS) { launchSingleTop = true } }
+                    onOpenSettings = { nav.navigate(Routes.SETTINGS) { launchSingleTop = true } },
+                    onOpenHidden = { nav.navigate(Routes.HIDDEN) { launchSingleTop = true } }
                 )
             }
             composable(Routes.DRAWER) {
@@ -174,6 +177,9 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int, recentsSignal: Int, rec
             }
             composable(Routes.PROTECTED) {
                 ProtectedAppsScreen(vm = vm, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.HIDDEN) {
+                HiddenAppsScreen(vm = vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.SETTINGS) {
                 LauncherSettingsScreen(vm = vm, onBack = { nav.popBackStack() })

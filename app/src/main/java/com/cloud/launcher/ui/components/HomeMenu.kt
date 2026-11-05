@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -62,6 +63,7 @@ fun HomeMenuButton(
     onOpenLibrary: () -> Unit,
     onOpenRecents: () -> Unit,
     onOpenProtected: () -> Unit,
+    onOpenHidden: () -> Unit,
     onOpenLauncherSettings: () -> Unit,
     onOpenSystemSettings: () -> Unit,
     modifier: Modifier = Modifier
@@ -115,6 +117,11 @@ fun HomeMenuButton(
                         MenuRow(Icons.Filled.Security, stringResource(R.string.home_protected)) {
                             open = false
                             onOpenProtected()
+                        }
+                        MenuDivider()
+                        MenuRow(Icons.Filled.VisibilityOff, stringResource(R.string.home_hidden)) {
+                            open = false
+                            onOpenHidden()
                         }
                         MenuDivider()
                         MenuRow(Icons.Filled.Tune, stringResource(R.string.home_launcher_settings)) {

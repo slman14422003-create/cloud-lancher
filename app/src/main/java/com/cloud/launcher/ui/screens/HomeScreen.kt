@@ -72,6 +72,7 @@ import com.cloud.launcher.ui.components.ReorderableAppGrid
 import com.cloud.launcher.ui.components.liquidGlass
 import com.cloud.launcher.ui.theme.CloudBlack
 import com.cloud.launcher.ui.theme.CloudGray
+import com.cloud.launcher.ui.theme.LocalLauncherSettings
 import com.cloud.launcher.ui.theme.rememberThemeBrush
 
 private const val GRID_COLUMNS = 4
@@ -82,9 +83,11 @@ fun HomeScreen(
     onOpenDrawer: () -> Unit,
     onOpenRecents: () -> Unit,
     onOpenProtected: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSettings: () -> Unit,
+    onOpenHidden: () -> Unit
 ) {
     val homeBackground = rememberThemeBrush()
+    val favCount = LocalLauncherSettings.current.favoritesCount.coerceIn(LauncherViewModel.MIN_FAVORITES, LauncherViewModel.MAX_FAVORITES)
     val favorites by vm.favorites.collectAsStateWithLifecycle()
     val homePkgs by vm.homeApps.collectAsStateWithLifecycle()
     val appMap by vm.appMap.collectAsStateWithLifecycle()
@@ -100,8 +103,8 @@ fun HomeScreen(
             hintVisible = false
         }
     }
-    val favApps = remember(favorites, appMap) {
-        favorites.mapNotNull { appMap[it] }.take(LauncherViewModel.MAX_FAVORITES)
+    val favApps = remember(favorites, appMap, favCount) {
+        favorites.mapNotNull { appMap[it] }.take(favCount)
     }
     val homeApps = remember(homePkgs, appMap) {
         homePkgs.mapNotNull { appMap[it] }.take(LauncherViewModel.MAX_HOME)
@@ -190,7 +193,7 @@ fun HomeScreen(
                 } else {
                     ReorderableAppGrid(
                         apps = favApps,
-                        columns = LauncherViewModel.MAX_FAVORITES,
+                        columns = favCount,
                         cellHeight = 64.dp,
                         iconSize = 52.dp,
                         showLabels = false,
@@ -209,6 +212,7 @@ fun HomeScreen(
                     onOpenLibrary = onOpenDrawer,
                     onOpenRecents = onOpenRecents,
                     onOpenProtected = onOpenProtected,
+                    onOpenHidden = onOpenHidden,
                     onOpenLauncherSettings = onOpenSettings,
                     onOpenSystemSettings = { vm.openSystemSettings() },
                     modifier = Modifier

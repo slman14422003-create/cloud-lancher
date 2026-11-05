@@ -24,6 +24,7 @@ data class LauncherSettings(
     val glassTintIndex: Int = 0,
     val glassIntensity: Float = 0.5f,
     val drawerLayout: DrawerLayout = DrawerLayout.GRID,
+    val favoritesCount: Int = 5,
     val drawerColumns: Int = 4,
     val drawerIconSize: Int = 54,
     val drawerShowLabels: Boolean = true,

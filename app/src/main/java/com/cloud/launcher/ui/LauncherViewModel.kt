@@ -46,6 +46,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     companion object {
         const val MAX_FAVORITES = 5
+        const val MIN_FAVORITES = 3
         const val MAX_HOME = 16
     }
 
@@ -93,8 +94,15 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     val protectedPkgs: StateFlow<List<String>> =
         protectedRepo.protectedApps.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val recentPkgs: StateFlow<List<String>> =
+    val hiddenPkgs: StateFlow<List<String>> =
+        prefs.hiddenApps.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    private val rawRecents: StateFlow<List<String>> =
         recentRepo.recents.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val recentPkgs: StateFlow<List<String>> =
+        combine(rawRecents, hiddenPkgs) { list, hidden -> list.filter { it !in hidden } }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val settings: StateFlow<LauncherSettings> =
         prefs.settings.stateIn(viewModelScope, SharingStarted.Eagerly, LauncherSettings())
@@ -123,7 +131,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
 
-    val drawerApps: StateFlow<List<AppInfo>> = combine(_apps, _query, sortByUsage, launchCounts) { list, q, byUsage, counts ->
+    val drawerApps: StateFlow<List<AppInfo>> = combine(_apps, _query, sortByUsage, launchCounts, hiddenPkgs) { all, q, byUsage, counts, hidden ->
+        val list = all.filter { it.packageName !in hidden }
         val text = q.trim()
         val filtered = if (text.isEmpty()) list else list.filter { it.label.contains(text, ignoreCase = true) }
         if (byUsage) {
@@ -266,12 +275,14 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     fun uninstall(packageName: String) = appRepo.uninstall(packageName)
 
 
+    private fun favoritesLimit(): Int = settings.value.favoritesCount.coerceIn(MIN_FAVORITES, MAX_FAVORITES)
+
     fun toggleFavorite(packageName: String) {
         viewModelScope.launch {
             val current = favorites.value
             when {
                 packageName in current -> prefs.setFavorites(current - packageName)
-                current.size >= MAX_FAVORITES -> toast(str(R.string.toast_home_limit))
+                current.size >= favoritesLimit() -> toast(ctx.getString(R.string.toast_home_limit, favoritesLimit()))
                 else -> prefs.setFavorites(current + packageName)
             }
         }
@@ -288,12 +299,25 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun toggleHidden(packageName: String) {
+        viewModelScope.launch {
+            val current = hiddenPkgs.value
+            if (packageName in current) {
+                prefs.setHidden(current - packageName)
+            } else {
+                prefs.setHidden(current + packageName)
+                if (packageName in homeApps.value) prefs.setHomeApps(homeApps.value - packageName)
+                if (packageName in favorites.value) prefs.setFavorites(favorites.value - packageName)
+            }
+        }
+    }
+
     fun setHomeOrder(order: List<String>) {
         viewModelScope.launch { prefs.setHomeApps(order) }
     }
 
     fun setFavoritesOrder(order: List<String>) {
-        viewModelScope.launch { prefs.setFavorites(order.take(MAX_FAVORITES)) }
+        viewModelScope.launch { prefs.setFavorites(order.take(favoritesLimit()) + favorites.value.drop(favoritesLimit()).filter { it !in order }) }
     }
 
 
@@ -400,7 +424,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 return@launch
             }
             val protectedSet = protectedPkgs.value.toSet()
-            val targets = recentPkgs.value.filter { it !in protectedSet && it != ctx.packageName }
+            val targets = rawRecents.value.filter { it !in protectedSet && it != ctx.packageName }
             if (targets.isEmpty()) {
                 postMessage(UiMessage(str(R.string.recents_nothing_to_close)))
                 return@launch
