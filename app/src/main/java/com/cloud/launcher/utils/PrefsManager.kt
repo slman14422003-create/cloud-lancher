@@ -59,6 +59,7 @@ private object SettingsKeys {
     val GLASS_TINT = intPreferencesKey("set_glass_tint")
     val GLASS_INTENSITY = floatPreferencesKey("set_glass_intensity")
     val DRAWER_LAYOUT = stringPreferencesKey("set_drawer_layout")
+    val FAVORITES_COUNT = intPreferencesKey("set_favorites_count")
     val DRAWER_COLUMNS = intPreferencesKey("set_drawer_columns")
     val DRAWER_ICON_SIZE = intPreferencesKey("set_drawer_icon_size")
     val DRAWER_LABELS = booleanPreferencesKey("set_drawer_labels")
@@ -80,6 +81,7 @@ private fun Preferences.toSettings(): LauncherSettings {
         glassTintIndex = this[SettingsKeys.GLASS_TINT] ?: d.glassTintIndex,
         glassIntensity = this[SettingsKeys.GLASS_INTENSITY] ?: d.glassIntensity,
         drawerLayout = this[SettingsKeys.DRAWER_LAYOUT].toEnum(d.drawerLayout),
+        favoritesCount = this[SettingsKeys.FAVORITES_COUNT] ?: d.favoritesCount,
         drawerColumns = this[SettingsKeys.DRAWER_COLUMNS] ?: d.drawerColumns,
         drawerIconSize = this[SettingsKeys.DRAWER_ICON_SIZE] ?: d.drawerIconSize,
         drawerShowLabels = this[SettingsKeys.DRAWER_LABELS] ?: d.drawerShowLabels,
@@ -100,6 +102,7 @@ private fun MutablePreferences.putSettings(s: LauncherSettings) {
     this[SettingsKeys.GLASS_TINT] = s.glassTintIndex
     this[SettingsKeys.GLASS_INTENSITY] = s.glassIntensity
     this[SettingsKeys.DRAWER_LAYOUT] = s.drawerLayout.name
+    this[SettingsKeys.FAVORITES_COUNT] = s.favoritesCount
     this[SettingsKeys.DRAWER_COLUMNS] = s.drawerColumns
     this[SettingsKeys.DRAWER_ICON_SIZE] = s.drawerIconSize
     this[SettingsKeys.DRAWER_LABELS] = s.drawerShowLabels
@@ -122,6 +125,7 @@ class PrefsManager(context: Context) {
         val SETUP_SHOWN = booleanPreferencesKey("setup_shown")
         val COMPILED_VERSION = intPreferencesKey("compiled_version")
         val HOME_HINT_SHOWN = booleanPreferencesKey("home_hint_shown")
+        val HIDDEN = stringPreferencesKey("hidden_apps")
     }
 
     private val data: Flow<Preferences> = store.data.catch { e ->
@@ -138,6 +142,12 @@ class PrefsManager(context: Context) {
     val setupShown: Flow<Boolean> = data.map { it[Keys.SETUP_SHOWN] ?: false }
     val compiledVersion: Flow<Int> = data.map { it[Keys.COMPILED_VERSION] ?: 0 }
     val homeHintShown: Flow<Boolean> = data.map { it[Keys.HOME_HINT_SHOWN] ?: false }
+
+    val hiddenApps: Flow<List<String>> = data.map { it[Keys.HIDDEN].toPkgList() }
+
+    suspend fun setHidden(list: List<String>) {
+        store.edit { it[Keys.HIDDEN] = list.joinToString(",") }
+    }
 
     val settings: Flow<LauncherSettings> = data.map { it.toSettings() }
 

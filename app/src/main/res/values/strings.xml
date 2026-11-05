@@ -47,7 +47,7 @@
     <string name="toast_no_root_protect">تم الحفظ، لكن الحماية الفعلية تحتاج صلاحية الروت</string>
     <string name="toast_launch_failed">تعذّر فتح التطبيق</string>
     <string name="toast_protection_applied">تم تطبيق الحماية</string>
-    <string name="toast_home_limit">شريط المفضلة يتسع لـ 5 تطبيقات</string>
+    <string name="toast_home_limit">شريط المفضلة يتسع لـ %1$d تطبيقات</string>
 
     <string name="setup_title">الإعداد الأولي</string>
     <string name="setup_root">صلاحية الروت</string>
@@ -171,4 +171,11 @@
     <string name="settings_bg_black">أسود</string>
     <string name="settings_bg_accent">لون التمييز</string>
     <string name="settings_reset">إعادة الضبط الافتراضي</string>
+    <string name="menu_hide">إخفاء التطبيق</string>
+    <string name="menu_unhide">إظهار التطبيق</string>
+    <string name="home_hidden">التطبيقات المخفية</string>
+    <string name="hidden_title">التطبيقات المخفية</string>
+    <string name="hidden_empty">لا توجد تطبيقات مخفية. اضغط مطولاً على أي تطبيق في المكتبة واختر إخفاء التطبيق.</string>
+    <string name="hidden_unhide">إظهار</string>
+    <string name="settings_favorites_count">عدد تطبيقات شريط المفضلة</string>
 </resources>
