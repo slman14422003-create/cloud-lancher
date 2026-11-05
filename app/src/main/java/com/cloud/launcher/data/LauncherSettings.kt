@@ -29,5 +29,9 @@ data class LauncherSettings(
     val drawerIconSize: Int = 54,
     val drawerShowLabels: Boolean = true,
     val iconShape: IconShape = IconShape.ORIGINAL,
-    val drawerBackground: DrawerBackground = DrawerBackground.THEME
+    val drawerBackground: DrawerBackground = DrawerBackground.THEME,
+    val doubleTapSleep: Boolean = true,
+    val doubleTapWake: Boolean = true,
+    val backKeepProtected: Boolean = true,
+    val autoMemory: Boolean = true
 )

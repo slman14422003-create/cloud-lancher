@@ -135,7 +135,8 @@ class ProtectionService : Service() {
             } catch (e: Exception) {
                 Log.w(TAG, "monitor iteration failed", e)
             }
-            delay(INTERVAL_MS)
+            val pm = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+            delay(if (pm.isInteractive) INTERVAL_MS else INTERVAL_MS * 3)
         }
     }
 

@@ -91,6 +91,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cloud.launcher.R
 import com.cloud.launcher.data.AppInfo
 import com.cloud.launcher.root.RunningApp
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Switch
+import com.cloud.launcher.ui.theme.LocalLauncherSettings
+import com.cloud.launcher.root.MemoryOptimizer
 import com.cloud.launcher.ui.LauncherViewModel
 import com.cloud.launcher.ui.components.AppContextMenu
 import com.cloud.launcher.ui.components.AppIcon
@@ -227,7 +231,9 @@ fun CustomRecentsScreen(vm: LauncherViewModel, onBack: () -> Unit) {
                         free = memory.first,
                         total = memory.second,
                         appsMb = appsRamMb,
-                        runningCount = runningCount
+                        runningCount = runningCount,
+                        auto = LocalLauncherSettings.current.autoMemory,
+                        onAuto = { v -> vm.updateSettings { it.copy(autoMemory = v) } }
                     )
                 }
 
@@ -399,8 +405,17 @@ private fun RecentsHeader(
 }
 
 @Composable
-private fun MemoryCard(free: Int, total: Int, appsMb: Long, runningCount: Int) {
+private fun MemoryCard(
+    free: Int,
+    total: Int,
+    appsMb: Long,
+    runningCount: Int,
+    auto: Boolean,
+    onAuto: (Boolean) -> Unit
+) {
     if (total <= 0) return
+    val freedMb by MemoryOptimizer.lastFreedMb.collectAsStateWithLifecycle()
+    val killed by MemoryOptimizer.lastKilled.collectAsStateWithLifecycle()
     val usedFraction = ((total - free).toFloat() / total.toFloat()).coerceIn(0f, 1f)
     val animated by animateFloatAsState(usedFraction, tween(700), label = "memory")
     val color by animateColorAsState(ramColor(usedFraction), tween(500), label = "memoryColor")
@@ -469,6 +484,34 @@ private fun MemoryCard(free: Int, total: Int, appsMb: Long, runningCount: Int) {
                     text = stringResource(R.string.recents_running_label, runningCount),
                     color = CloudGray,
                     style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Spacer(Modifier.height(6.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.recents_auto_memory),
+                        color = CloudWhite,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    if (auto && killed > 0) {
+                        Text(
+                            text = stringResource(R.string.recents_auto_freed, freedMb.toInt(), killed),
+                            color = CloudGray,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                }
+                Switch(
+                    checked = auto,
+                    onCheckedChange = onAuto,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = CloudWhite,
+                        checkedTrackColor = CloudAccent,
+                        uncheckedThumbColor = CloudGray,
+                        uncheckedTrackColor = Color(0x26FFFFFF),
+                        uncheckedBorderColor = Color(0x33FFFFFF)
+                    )
                 )
             }
         }

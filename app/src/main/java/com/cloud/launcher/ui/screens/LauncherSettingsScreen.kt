@@ -150,6 +150,23 @@ fun LauncherSettingsScreen(vm: LauncherViewModel, onBack: () -> Unit) {
             }
 
             item {
+                SettingsCard(stringResource(R.string.settings_system)) {
+                    SwitchRow(stringResource(R.string.settings_double_tap_sleep), s.doubleTapSleep) { v ->
+                        vm.updateSettings { it.copy(doubleTapSleep = v) }
+                    }
+                    SwitchRow(stringResource(R.string.settings_double_tap_wake), s.doubleTapWake) { v ->
+                        vm.updateSettings { it.copy(doubleTapWake = v) }
+                    }
+                    SwitchRow(stringResource(R.string.settings_back_keep), s.backKeepProtected) { v ->
+                        vm.updateSettings { it.copy(backKeepProtected = v) }
+                    }
+                    SwitchRow(stringResource(R.string.settings_auto_memory), s.autoMemory) { v ->
+                        vm.updateSettings { it.copy(autoMemory = v) }
+                    }
+                }
+            }
+
+            item {
                 SettingsCard(stringResource(R.string.settings_theme)) {
                     Label(stringResource(R.string.settings_background))
                     Swatches(

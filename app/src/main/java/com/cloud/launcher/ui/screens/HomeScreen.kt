@@ -30,7 +30,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import com.cloud.launcher.ui.theme.CloudWhite
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.ui.platform.LocalContext
+import com.cloud.launcher.utils.ScreenControl
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -87,6 +90,9 @@ fun HomeScreen(
     onOpenHidden: () -> Unit
 ) {
     val homeBackground = rememberThemeBrush()
+    val appContext = LocalContext.current.applicationContext
+    val sleepOnDoubleTap = LocalLauncherSettings.current.doubleTapSleep
+    val currentSleepFlag by rememberUpdatedState(sleepOnDoubleTap)
     val favCount = LocalLauncherSettings.current.favoritesCount.coerceIn(LauncherViewModel.MIN_FAVORITES, LauncherViewModel.MAX_FAVORITES)
     val favorites by vm.favorites.collectAsStateWithLifecycle()
     val homePkgs by vm.homeApps.collectAsStateWithLifecycle()
@@ -128,6 +134,11 @@ fun HomeScreen(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onDoubleTap = { if (currentSleepFlag) ScreenControl.sleep(appContext) }
+                    )
+                }
                 .pointerInput(Unit) {
                     var total = 0f
                     detectVerticalDragGestures(
