@@ -5,7 +5,7 @@
     <string name="home_library">المكتبة</string>
     <string name="home_recents">الأخيرة</string>
     <string name="home_protected">المحمية</string>
-    <string name="home_setup">الإعداد</string>
+    <string name="home_system_settings">إعدادات النظام</string>
     <string name="home_hint">اضغط مطولاً على أي تطبيق في المكتبة لإضافته إلى الشاشة الرئيسية أو شريط المفضلة</string>
 
     <string name="search_hint">ابحث عن تطبيق</string>
@@ -22,7 +22,7 @@
     <string name="menu_force_stop">إغلاق قسري (يتطلب روت)</string>
 
     <string name="recents_title">الأخيرة المخصصة</string>
-    <string name="recents_empty">لا توجد تطبيقات حديثة بعد. فعّل خدمة التتبع أو صلاحية الاستخدام من الإعداد.</string>
+    <string name="recents_empty">لا توجد تطبيقات حديثة بعد. افتح أي تطبيق وسيظهر هنا تلقائياً.</string>
     <string name="recents_ram">الذاكرة المتاحة %1$d من %2$d MB</string>
     <string name="recents_count">%1$d تطبيق</string>
     <string name="kill_all">إغلاق الكل</string>
@@ -102,4 +102,29 @@
     <string name="toast_grid_limit">الشاشة الرئيسية تتسع لـ 16 تطبيقاً</string>
     <string name="setup_system_updated_note">هذه نسخة محدّثة فوق نسخة النظام. يمكنك دمجها داخل النظام لتبقى بعد إعادة ضبط المصنع.</string>
     <string name="setup_merge_update">دمج التحديث داخل النظام</string>
+
+    <string name="recents_subtitle">%1$d تطبيق • %2$d قيد التشغيل</string>
+    <string name="recents_apps_ram">تطبيقاتك تستهلك %1$d MB</string>
+    <string name="recents_running_label">%1$d يعمل الآن</string>
+    <string name="filter_all">الكل</string>
+    <string name="filter_running">قيد التشغيل</string>
+    <string name="filter_protected">محمية</string>
+    <string name="sort_recent">الأحدث</string>
+    <string name="sort_ram">الأكثر استهلاكاً</string>
+    <string name="filter_empty">لا توجد تطبيقات ضمن هذا الفلتر</string>
+    <string name="status_running">يعمل</string>
+    <string name="closing_app">جارٍ الإغلاق…</string>
+    <string name="msg_closed">تم إغلاق %1$s</string>
+    <string name="msg_closed_freed">تم إغلاق %1$s وتحرير %2$d MB</string>
+    <string name="msg_close_failed">تعذّر إغلاق %1$s بالكامل</string>
+    <string name="msg_closed_noroot">تم طلب إغلاق %1$s (الإغلاق الكامل يحتاج روت)</string>
+    <string name="action_unprotect_close">إلغاء الحماية وإغلاق</string>
+    <string name="action_retry">إعادة المحاولة</string>
+    <string name="recents_killed_freed">تم إغلاق %1$d تطبيق وتحرير %2$d MB</string>
+    <string name="recents_nothing_to_close">لا يوجد ما يُغلق، التطبيقات المحمية لا تُغلق</string>
+    <string name="banner_tracking_title">التتبع غير مكتمل</string>
+    <string name="banner_tracking_body">فعّل صلاحية الاستخدام وخدمة التتبع ليظهر كل ما تفتحه هنا.</string>
+    <string name="banner_fix">إصلاح تلقائي</string>
+    <string name="banner_root_action">طلب الروت</string>
+    <string name="home_swipe_hint">أو اسحب للأعلى لفتح المكتبة</string>
 </resources>

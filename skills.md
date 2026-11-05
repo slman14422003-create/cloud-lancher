@@ -59,3 +59,18 @@
 ## Notes
 - Normal update flow: install the new APK over the current one, no reboot needed. The system copy only needs refreshing through the wizard if you want the update to survive a factory reset.
 - The system copy installed earlier has versionCode 1, so any build from now on is accepted as an update.
+
+## Task: custom recents fixes and redesign, system settings menu entry
+- Close (X) button: ProcessManager now runs am force-stop with --user 0 (fallback without), fixes PATH for the su shell, verifies via ps, and falls back to kill -9 on every process of the package (including :service processes). Kill all runs force-stops 4 at a time with a 60s timeout, then hard-kills leftovers. Without root it falls back to ActivityManager.killBackgroundProcesses.
+- ViewModel: closeApp (suspend, returns success), closing / killingAll state, messages flow (snackbar in recents, toast elsewhere), unprotect-and-close action for protected apps, retry action on failure. Closed apps are removed from recents (kill all too), freed MB reported.
+- CustomRecentsScreen redesigned: animated RAM ring card, running count and apps RAM, filter chips (all / running / protected), sort by recent or RAM, per-app RAM badge + bar, status dot, spinner while closing, animated row removal, haptics, glass snackbar, banner to request root or auto-fix tracking permissions.
+- Home menu: the setup entry is replaced by "System settings" (Settings.ACTION_SETTINGS). The setup wizard still shows automatically on first run only.
+
+## Notes
+- Not built in the sandbox (no Gradle). Verify with assembleDebug / GitHub Actions. If X still fails on the J5, check the snackbar text: "تعذّر إغلاق" means the system restarted the app right after the kill.
+
+## Task: home screen redesign
+- Background: dark blue to black vertical gradient plus a soft accent radial glow behind the clock.
+- ClockWidget: gradient clock text with accent glow, date in a glass pill with an accent dot, battery and free RAM chips (refresh every 15s).
+- HomeScreen: glass search pill above the dock (opens the library), richer empty state card with an animated swipe-up hint.
+- Not built in the sandbox; verify with assembleDebug.
