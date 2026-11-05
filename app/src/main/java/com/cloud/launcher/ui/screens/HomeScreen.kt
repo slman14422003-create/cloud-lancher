@@ -72,22 +72,19 @@ import com.cloud.launcher.ui.components.ReorderableAppGrid
 import com.cloud.launcher.ui.components.liquidGlass
 import com.cloud.launcher.ui.theme.CloudBlack
 import com.cloud.launcher.ui.theme.CloudGray
+import com.cloud.launcher.ui.theme.rememberThemeBrush
 
 private const val GRID_COLUMNS = 4
-
-private val HomeBackground: Brush = Brush.verticalGradient(
-    0f to Color(0xFF0A2236),
-    0.5f to Color(0xFF000000),
-    1f to Color(0xFF000000)
-)
 
 @Composable
 fun HomeScreen(
     vm: LauncherViewModel,
     onOpenDrawer: () -> Unit,
     onOpenRecents: () -> Unit,
-    onOpenProtected: () -> Unit
+    onOpenProtected: () -> Unit,
+    onOpenSettings: () -> Unit
 ) {
+    val homeBackground = rememberThemeBrush()
     val favorites by vm.favorites.collectAsStateWithLifecycle()
     val homePkgs by vm.homeApps.collectAsStateWithLifecycle()
     val appMap by vm.appMap.collectAsStateWithLifecycle()
@@ -113,7 +110,7 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(HomeBackground)
+            .background(homeBackground)
             .drawWithCache {
                 val glow = Brush.radialGradient(
                     colors = listOf(CloudAccent.copy(alpha = 0.12f), Color.Transparent),
@@ -148,14 +145,11 @@ fun HomeScreen(
             ) {
                 if (homeApps.isEmpty()) {
                     if (favApps.isEmpty()) {
-                        AnimatedVisibility(
+                        HintHost(
                             visible = hintVisible,
-                            enter = fadeIn(),
-                            exit = fadeOut(),
+                            onOpenDrawer = currentOpenDrawer,
                             modifier = Modifier.align(Alignment.Center)
-                        ) {
-                            EmptyHomeCard(onOpenDrawer = currentOpenDrawer)
-                        }
+                        )
                     }
                 } else {
                     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -220,6 +214,7 @@ fun HomeScreen(
                     onOpenLibrary = onOpenDrawer,
                     onOpenRecents = onOpenRecents,
                     onOpenProtected = onOpenProtected,
+                    onOpenLauncherSettings = onOpenSettings,
                     onOpenSystemSettings = { vm.openSystemSettings() },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -230,6 +225,18 @@ fun HomeScreen(
     }
 
     menuApp?.let { app -> AppContextMenu(app = app, vm = vm, onDismiss = { menuApp = null }) }
+}
+
+@Composable
+private fun HintHost(visible: Boolean, onOpenDrawer: () -> Unit, modifier: Modifier = Modifier) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = modifier
+    ) {
+        EmptyHomeCard(onOpenDrawer = onOpenDrawer)
+    }
 }
 
 @Composable

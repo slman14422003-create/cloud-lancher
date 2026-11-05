@@ -56,6 +56,7 @@ import com.cloud.launcher.ui.theme.CloudAccent
 import com.cloud.launcher.ui.theme.CloudBlack
 import com.cloud.launcher.ui.theme.CloudDanger
 import com.cloud.launcher.ui.theme.CloudGray
+import com.cloud.launcher.ui.theme.rememberThemeBrush
 import com.cloud.launcher.ui.theme.CloudSuccess
 import com.cloud.launcher.ui.theme.CloudSurface
 import com.cloud.launcher.ui.theme.CloudSurfaceHigh
@@ -83,7 +84,7 @@ fun ProtectedAppsScreen(vm: LauncherViewModel, onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(CloudBlack)
+            .background(rememberThemeBrush())
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {

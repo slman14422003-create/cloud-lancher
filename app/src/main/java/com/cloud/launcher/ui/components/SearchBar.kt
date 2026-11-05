@@ -26,7 +26,7 @@ fun CloudSearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Mod
     TextField(
         value = query,
         onValueChange = onQueryChange,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().liquidGlass(RoundedCornerShape(26.dp)),
         singleLine = true,
         placeholder = { Text(stringResource(R.string.search_hint), color = CloudGray) },
         leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null, tint = CloudGray) },
@@ -39,8 +39,8 @@ fun CloudSearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Mod
         },
         shape = RoundedCornerShape(26.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0x26FFFFFF),
-            unfocusedContainerColor = Color(0x26FFFFFF),
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             focusedTextColor = CloudWhite,

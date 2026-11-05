@@ -99,6 +99,7 @@ import com.cloud.launcher.ui.theme.CloudAccent
 import com.cloud.launcher.ui.theme.CloudBlack
 import com.cloud.launcher.ui.theme.CloudDanger
 import com.cloud.launcher.ui.theme.CloudGray
+import com.cloud.launcher.ui.theme.rememberThemeBrush
 import com.cloud.launcher.ui.theme.CloudSuccess
 import com.cloud.launcher.ui.theme.CloudWhite
 import kotlinx.coroutines.delay
@@ -196,7 +197,7 @@ fun CustomRecentsScreen(vm: LauncherViewModel, onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF06141D), CloudBlack, CloudBlack)))
+            .background(rememberThemeBrush())
     ) {
         Column(
             modifier = Modifier

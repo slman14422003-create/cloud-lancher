@@ -5,22 +5,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
+import com.cloud.launcher.data.LauncherSettings
 
-private val CloudColors = darkColorScheme(
-    primary = CloudAccent,
-    onPrimary = CloudBlack,
-    secondary = CloudGray,
-    onSecondary = CloudBlack,
-    background = CloudBlack,
-    onBackground = CloudWhite,
-    surface = CloudSurface,
-    onSurface = CloudWhite,
-    surfaceVariant = CloudSurfaceHigh,
-    onSurfaceVariant = CloudGray,
-    error = CloudDanger,
-    outline = CloudOutline
-)
+val LocalLauncherSettings = staticCompositionLocalOf { LauncherSettings() }
 
 private val CloudShapes = Shapes(
     small = RoundedCornerShape(8.dp),
@@ -29,11 +20,30 @@ private val CloudShapes = Shapes(
 )
 
 @Composable
-fun CloudLauncherTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = CloudColors,
-        typography = CloudTypography,
-        shapes = CloudShapes,
-        content = content
-    )
+fun CloudLauncherTheme(settings: LauncherSettings, content: @Composable () -> Unit) {
+    val accent = ThemeState.accent
+    val scheme = remember(accent) {
+        darkColorScheme(
+            primary = accent,
+            onPrimary = CloudBlack,
+            secondary = CloudGray,
+            onSecondary = CloudBlack,
+            background = CloudBlack,
+            onBackground = CloudWhite,
+            surface = CloudSurface,
+            onSurface = CloudWhite,
+            surfaceVariant = CloudSurfaceHigh,
+            onSurfaceVariant = CloudGray,
+            error = CloudDanger,
+            outline = CloudOutline
+        )
+    }
+    CompositionLocalProvider(LocalLauncherSettings provides settings) {
+        MaterialTheme(
+            colorScheme = scheme,
+            typography = CloudTypography,
+            shapes = CloudShapes,
+            content = content
+        )
+    }
 }

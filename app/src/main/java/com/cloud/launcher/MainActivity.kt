@@ -38,6 +38,7 @@ import com.cloud.launcher.ui.components.SetupWizard
 import com.cloud.launcher.ui.screens.AppDrawerScreen
 import com.cloud.launcher.ui.screens.CustomRecentsScreen
 import com.cloud.launcher.ui.screens.HomeScreen
+import com.cloud.launcher.ui.screens.LauncherSettingsScreen
 import com.cloud.launcher.ui.screens.ProtectedAppsScreen
 import com.cloud.launcher.ui.theme.CloudBlack
 import com.cloud.launcher.ui.theme.CloudLauncherTheme
@@ -49,6 +50,7 @@ object Routes {
     const val DRAWER = "drawer"
     const val RECENTS = "recents"
     const val PROTECTED = "protected"
+    const val SETTINGS = "settings"
 }
 
 class MainActivity : ComponentActivity() {
@@ -67,7 +69,8 @@ class MainActivity : ComponentActivity() {
             recentsSignal.intValue = 1
         }
         setContent {
-            CloudLauncherTheme {
+            val settings by vm.settings.collectAsStateWithLifecycle()
+            CloudLauncherTheme(settings = settings) {
                 LauncherRoot(
                     vm = vm,
                     homeSignal = homeSignal.intValue,
@@ -157,7 +160,8 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int, recentsSignal: Int, rec
                     vm = vm,
                     onOpenDrawer = { nav.navigate(Routes.DRAWER) { launchSingleTop = true } },
                     onOpenRecents = { nav.navigate(Routes.RECENTS) { launchSingleTop = true } },
-                    onOpenProtected = { nav.navigate(Routes.PROTECTED) { launchSingleTop = true } }
+                    onOpenProtected = { nav.navigate(Routes.PROTECTED) { launchSingleTop = true } },
+                    onOpenSettings = { nav.navigate(Routes.SETTINGS) { launchSingleTop = true } }
                 )
             }
             composable(Routes.DRAWER) {
@@ -170,6 +174,9 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int, recentsSignal: Int, rec
             }
             composable(Routes.PROTECTED) {
                 ProtectedAppsScreen(vm = vm, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.SETTINGS) {
+                LauncherSettingsScreen(vm = vm, onBack = { nav.popBackStack() })
             }
         }
     }

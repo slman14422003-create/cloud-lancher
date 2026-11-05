@@ -13,6 +13,8 @@ import androidx.lifecycle.viewModelScope
 import com.cloud.launcher.R
 import com.cloud.launcher.data.AppInfo
 import com.cloud.launcher.data.AppRepository
+import com.cloud.launcher.data.LauncherSettings
+import com.cloud.launcher.ui.theme.ThemeState
 import com.cloud.launcher.data.ProtectedAppsRepository
 import com.cloud.launcher.data.RecentAppsRepository
 import com.cloud.launcher.root.OomController
@@ -94,6 +96,17 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     val recentPkgs: StateFlow<List<String>> =
         recentRepo.recents.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    val settings: StateFlow<LauncherSettings> =
+        prefs.settings.stateIn(viewModelScope, SharingStarted.Eagerly, LauncherSettings())
+
+    fun updateSettings(transform: (LauncherSettings) -> LauncherSettings) {
+        viewModelScope.launch { prefs.updateSettings(transform) }
+    }
+
+    fun resetSettings() {
+        viewModelScope.launch { prefs.updateSettings { LauncherSettings() } }
+    }
+
     val sortByUsage: StateFlow<Boolean> =
         prefs.sortByUsage.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
@@ -160,6 +173,13 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             addDataScheme("package")
         }
         ContextCompat.registerReceiver(ctx, packageReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+
+        viewModelScope.launch {
+            settings.collect { s ->
+                ThemeState.apply(s)
+                if (IconCache.setShape(s.iconShape)) refreshApps()
+            }
+        }
 
         refreshApps()
         viewModelScope.launch {
