@@ -74,3 +74,15 @@
 - ClockWidget: gradient clock text with accent glow, date in a glass pill with an accent dot, battery and free RAM chips (refresh every 15s).
 - HomeScreen: glass search pill above the dock (opens the library), richer empty state card with an animated swipe-up hint.
 - Not built in the sandbox; verify with assembleDebug.
+
+## Task: home screen polish
+- Empty-state hint card shows once only (DataStore key home_hint_shown, set when first shown) and hides itself after 15s with a fade.
+- Softer background (gradient fades to black at 50%, weaker glow), search pill now uses liquidGlass like the dock so both match, battery/RAM chips forced LTR so the text reads "528 MB".
+
+## Task: performance on Android 7 (Samsung J5)
+- Navigation: exit transitions removed, enter is a 110ms fade only (no scale/spring on the drawer). Two full-screen alpha layers per transition were the main cost.
+- ProtectionService: monitor interval 2s -> 4s; monitor script uses pidof only (no full ps scan, no per-process while loop) each cycle.
+- Recents: running-app refresh every 7s (was 4s), RSS rounded to 4MB steps so rows do not recompose every refresh, RAM sampled every 5s in 4MB steps.
+- Icons are preloaded into IconCache in the background after the app list loads (favorites and home apps first), so the drawer opens without per-tile decoding.
+- Glass brushes are top-level constants; home background brush is cached with drawWithCache; clock text blur shadow removed.
+- Release only: baseline-prof.txt added (profileinstaller already present). With root, the app runs "pm compile -m speed -f com.cloud.launcher" once per versionCode, 20s after launch, so ART precompiles the whole app. Debug builds are much slower than release on this device, test with the release APK.

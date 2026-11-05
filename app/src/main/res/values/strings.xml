@@ -63,7 +63,7 @@
 
     <string name="notif_channel">خدمة الحماية</string>
     <string name="notif_title">حماية %1$d تطبيقات نشطة</string>
-    <string name="notif_text">Cloud Launcher يراقب التطبيقات المحمية كل 3 ثوانٍ</string>
+    <string name="notif_text">Cloud Launcher يراقب التطبيقات المحمية كل 4 ثوانٍ</string>
 
     <string name="accessibility_desc">يسجّل التطبيقات التي تفتحها فقط لعرضها في قائمة الأخيرة المخصصة. لا يقرأ أي محتوى من الشاشة.</string>
     <string name="home_favorites_empty">شريط المفضلة فارغ</string>
