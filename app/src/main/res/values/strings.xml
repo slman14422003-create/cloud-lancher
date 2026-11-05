@@ -178,4 +178,11 @@
     <string name="hidden_empty">لا توجد تطبيقات مخفية. اضغط مطولاً على أي تطبيق في المكتبة واختر إخفاء التطبيق.</string>
     <string name="hidden_unhide">إظهار</string>
     <string name="settings_favorites_count">عدد تطبيقات شريط المفضلة</string>
+    <string name="settings_system">النظام والأداء</string>
+    <string name="settings_double_tap_sleep">نقرتان على الشاشة الرئيسية لإغلاق الشاشة</string>
+    <string name="settings_double_tap_wake">نقرتان لفتح الشاشة (روت)</string>
+    <string name="settings_back_keep">زر الرجوع لا يغلق التطبيقات المحمية</string>
+    <string name="settings_auto_memory">تحرير الذاكرة تلقائياً من مهام النظام غير الضرورية</string>
+    <string name="recents_auto_memory">تحرير الذاكرة تلقائياً</string>
+    <string name="recents_auto_freed">آخر تحرير: %1$d MB من %2$d عملية</string>
 </resources>

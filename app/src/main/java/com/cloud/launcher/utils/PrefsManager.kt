@@ -65,6 +65,10 @@ private object SettingsKeys {
     val DRAWER_LABELS = booleanPreferencesKey("set_drawer_labels")
     val ICON_SHAPE = stringPreferencesKey("set_icon_shape")
     val DRAWER_BG = stringPreferencesKey("set_drawer_bg")
+    val DOUBLE_TAP_SLEEP = booleanPreferencesKey("set_dt_sleep")
+    val DOUBLE_TAP_WAKE = booleanPreferencesKey("set_dt_wake")
+    val BACK_KEEP = booleanPreferencesKey("set_back_keep")
+    val AUTO_MEMORY = booleanPreferencesKey("set_auto_memory")
 }
 
 private fun Preferences.toSettings(): LauncherSettings {
@@ -86,7 +90,11 @@ private fun Preferences.toSettings(): LauncherSettings {
         drawerIconSize = this[SettingsKeys.DRAWER_ICON_SIZE] ?: d.drawerIconSize,
         drawerShowLabels = this[SettingsKeys.DRAWER_LABELS] ?: d.drawerShowLabels,
         iconShape = this[SettingsKeys.ICON_SHAPE].toEnum(d.iconShape),
-        drawerBackground = this[SettingsKeys.DRAWER_BG].toEnum(d.drawerBackground)
+        drawerBackground = this[SettingsKeys.DRAWER_BG].toEnum(d.drawerBackground),
+        doubleTapSleep = this[SettingsKeys.DOUBLE_TAP_SLEEP] ?: d.doubleTapSleep,
+        doubleTapWake = this[SettingsKeys.DOUBLE_TAP_WAKE] ?: d.doubleTapWake,
+        backKeepProtected = this[SettingsKeys.BACK_KEEP] ?: d.backKeepProtected,
+        autoMemory = this[SettingsKeys.AUTO_MEMORY] ?: d.autoMemory
     )
 }
 
@@ -108,6 +116,10 @@ private fun MutablePreferences.putSettings(s: LauncherSettings) {
     this[SettingsKeys.DRAWER_LABELS] = s.drawerShowLabels
     this[SettingsKeys.ICON_SHAPE] = s.iconShape.name
     this[SettingsKeys.DRAWER_BG] = s.drawerBackground.name
+    this[SettingsKeys.DOUBLE_TAP_SLEEP] = s.doubleTapSleep
+    this[SettingsKeys.DOUBLE_TAP_WAKE] = s.doubleTapWake
+    this[SettingsKeys.BACK_KEEP] = s.backKeepProtected
+    this[SettingsKeys.AUTO_MEMORY] = s.autoMemory
 }
 
 class PrefsManager(context: Context) {
