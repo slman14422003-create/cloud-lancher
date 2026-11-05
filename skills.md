@@ -38,3 +38,14 @@
 
 ## Notes
 - Not built in the sandbox. Test the system install on the J5 (Android 7 ignores privapp xml, harmless). On Android 10+ /system is read-only and the installer will report failure.
+
+## Task: home grid, drag reorder, stronger app protection
+- New home grid (4 columns, up to 16 apps, DataStore key home_apps). VM: homeApps, toggleHome, setHomeOrder, setFavoritesOrder, MAX_HOME.
+- New ui/components/ReorderableAppGrid.kt, used for both the home grid and the favorites dock: long press then drag reorders with animated slots (RTL aware), long press without moving opens the app context menu, tap launches. Tap is suppressed for 350ms after a drag.
+- Context menu now has separate entries: home screen, favorites dock, protect (prevent system from closing).
+- Protection: OomController scripts now walk the full ps list, so child processes (pkg:service) also get oom_adj -17 / oom_score_adj -1000 and renice -20; also appops RUN_IN_BACKGROUND/RUN_ANY_IN_BACKGROUND allow, set-inactive false, standby bucket active, deviceidle whitelist. Monitor loop every 2s, relaunch cooldown 15s, the launcher process itself is protected while the service runs, MAX_PROTECTED raised to 8.
+- Removed all Arabic comments from Kotlin sources (user preference). Arabic stays only in res/values/strings.xml.
+
+## Notes
+- Limits: no userspace method can make a process absolutely unkillable. oom_score_adj -1000 survives lmkd, but ActivityManager can reset it on state changes (re-applied within 2s), and the user can still force-stop from system settings.
+- Drag is not tested on device; check the drag feel on the J5 (spring stiffness in ReorderableAppGrid).

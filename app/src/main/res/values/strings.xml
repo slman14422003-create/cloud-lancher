@@ -6,7 +6,7 @@
     <string name="home_recents">الأخيرة</string>
     <string name="home_protected">المحمية</string>
     <string name="home_setup">الإعداد</string>
-    <string name="home_hint">اضغط مطولاً على أي تطبيق في المكتبة لإضافته إلى شريط المفضلة</string>
+    <string name="home_hint">اضغط مطولاً على أي تطبيق في المكتبة لإضافته إلى الشاشة الرئيسية أو شريط المفضلة</string>
 
     <string name="search_hint">ابحث عن تطبيق</string>
     <string name="sort_az">ترتيب أبجدي</string>
@@ -14,8 +14,8 @@
 
     <string name="menu_add_home">إضافة إلى الشاشة الرئيسية</string>
     <string name="menu_remove_home">إزالة من الشاشة الرئيسية</string>
-    <string name="menu_add_protect">إضافة إلى قائمة الحماية</string>
-    <string name="menu_remove_protect">إزالة من قائمة الحماية</string>
+    <string name="menu_add_protect">منع إغلاقه من النظام (حماية)</string>
+    <string name="menu_remove_protect">إلغاء منع الإغلاق</string>
     <string name="menu_add_recents">إضافة إلى الأخيرة المخصصة</string>
     <string name="menu_app_info">معلومات التطبيق</string>
     <string name="menu_uninstall">إلغاء التثبيت</string>
@@ -32,7 +32,7 @@
     <string name="close_app">إغلاق التطبيق</string>
 
     <string name="protected_title">التطبيقات المحمية</string>
-    <string name="protected_empty">لم تحمِ أي تطبيق بعد. اختر من 3 إلى 5 تطبيقات.</string>
+    <string name="protected_empty">لم تحمِ أي تطبيق بعد. اختر حتى 8 تطبيقات.</string>
     <string name="protected_add">إضافة تطبيق</string>
     <string name="protected_running">يعمل</string>
     <string name="protected_stopped">متوقف</string>
@@ -41,7 +41,7 @@
     <string name="back">رجوع</string>
 
     <string name="root_required">هذه الميزة تحتاج صلاحية الروت</string>
-    <string name="toast_protected_limit">الحد الأقصى 5 تطبيقات محمية</string>
+    <string name="toast_protected_limit">الحد الأقصى 8 تطبيقات محمية</string>
     <string name="toast_cannot_close_protected">التطبيق محمي، ألغِ الحماية أولاً لإغلاقه</string>
     <string name="toast_killed">تم إغلاق %1$d تطبيق</string>
     <string name="toast_no_root_protect">تم الحفظ، لكن الحماية الفعلية تحتاج صلاحية الروت</string>
@@ -97,4 +97,7 @@
     <string name="setup_step_system_body">ينسخ التطبيق إلى /system/priv-app مع ملف أذونات الامتيازات، فتُمنح الأذونات المميزة (إيقاف التطبيقات، إعدادات النظام الآمنة، المهام) بدون روت في كل مرة. يحتاج الروت وإعادة تشغيل.</string>
     <string name="setup_done_title">اكتمل الإعداد</string>
     <string name="setup_done_body">تم حفظ حالة الإعداد محلياً. يمكنك إعادة فتحه في أي وقت من قائمة النقاط.</string>
+    <string name="menu_add_favorite">إضافة إلى شريط المفضلة</string>
+    <string name="menu_remove_favorite">إزالة من شريط المفضلة</string>
+    <string name="toast_grid_limit">الشاشة الرئيسية تتسع لـ 16 تطبيقاً</string>
 </resources>
