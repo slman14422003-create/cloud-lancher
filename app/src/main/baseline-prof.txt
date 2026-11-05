@@ -1,0 +1,11 @@
+HSPLandroidx/compose/**;->**(**)**
+HSPLandroidx/activity/**;->**(**)**
+HSPLandroidx/lifecycle/**;->**(**)**
+HSPLandroidx/navigation/**;->**(**)**
+HSPLandroidx/datastore/**;->**(**)**
+HSPLkotlinx/coroutines/**;->**(**)**
+HSPLcom/cloud/launcher/**;->**(**)**
+Landroidx/compose/**;
+Landroidx/lifecycle/**;
+Landroidx/navigation/**;
+Lcom/cloud/launcher/**;

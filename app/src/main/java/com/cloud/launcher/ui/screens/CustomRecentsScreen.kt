@@ -119,8 +119,8 @@ private fun rememberMemory(): State<Pair<Int, Int>> {
         val info = ActivityManager.MemoryInfo()
         while (true) {
             am.getMemoryInfo(info)
-            value = (info.availMem / MB).toInt() to (info.totalMem / MB).toInt()
-            delay(3_000L)
+            value = ((info.availMem / MB) / 4L * 4L).toInt() to (info.totalMem / MB).toInt()
+            delay(5_000L)
         }
     }
 }
@@ -175,7 +175,7 @@ fun CustomRecentsScreen(vm: LauncherViewModel, onBack: () -> Unit) {
         vm.syncRecents()
         while (true) {
             vm.refreshRunning()
-            delay(4_000L)
+            delay(7_000L)
         }
     }
 

@@ -51,18 +51,14 @@ object OomController {
     )
 
     fun monitorScript(packages: List<String>): String = sh(
-        LIST_PROCS + """
+        """
         for PKG in ${packages.joinToString(" ")}; do
-          echo "§PS_LIST" | while read PID NAME; do
-            case "§NAME" in
-              "§PKG"|"§PKG":*)
-                echo -17 > /proc/§PID/oom_adj 2>/dev/null
-                echo -1000 > /proc/§PID/oom_score_adj 2>/dev/null
-                ;;
-            esac
-          done
           PIDS=§(pidof §PKG)
           if [ -n "§PIDS" ]; then
+            for P in §PIDS; do
+              echo -17 > /proc/§P/oom_adj 2>/dev/null
+              echo -1000 > /proc/§P/oom_score_adj 2>/dev/null
+            done
             echo "§PKG §{PIDS%% *}"
           else
             echo "§PKG 0"

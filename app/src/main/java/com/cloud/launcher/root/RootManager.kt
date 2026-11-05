@@ -90,6 +90,16 @@ object RootManager {
         PermissionUtils.hasUsageAccess(context)
     }
 
+    suspend fun compileForSpeed(context: Context): Boolean = withContext(Dispatchers.IO) {
+        val pkg = context.packageName
+        if (!ShellUtils.isValidPackage(pkg)) return@withContext false
+        val result = ShellUtils.runAsRoot(
+            "pm compile -m speed -f $pkg 2>&1 || cmd package compile -m speed -f $pkg 2>&1",
+            240_000L
+        )
+        result.stdout.contains("Success", ignoreCase = true) || result.isSuccess
+    }
+
     suspend fun setDefaultLauncher(context: Context): Boolean = withContext(Dispatchers.IO) {
         val pkg = context.packageName
         if (!ShellUtils.isValidPackage(pkg)) return@withContext false

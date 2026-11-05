@@ -35,7 +35,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 
 class LauncherViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -96,6 +99,13 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     private val launchCounts: StateFlow<Map<String, Long>> =
         prefs.launchCounts.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
+    val homeHintShown: StateFlow<Boolean?> =
+        prefs.homeHintShown.map<Boolean, Boolean?> { it }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    fun markHomeHintShown() {
+        viewModelScope.launch { prefs.setHomeHintShown(true) }
+    }
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
@@ -163,9 +173,22 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                     RootManager.enableAccessibility(ctx)
                     refreshPermissions()
                     if (protectedRepo.current().isNotEmpty()) ProtectionService.start(ctx)
+                    optimizeIfNeeded()
                 }
             }
         }
+    }
+
+    @Suppress("DEPRECATION")
+    private suspend fun optimizeIfNeeded() {
+        val current = try {
+            ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionCode
+        } catch (e: Exception) {
+            return
+        }
+        if (prefs.compiledVersion.first() == current) return
+        kotlinx.coroutines.delay(20_000L)
+        if (RootManager.compileForSpeed(ctx)) prefs.setCompiledVersion(current)
     }
 
     override fun onCleared() {
@@ -186,7 +209,16 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     fun refreshApps() {
         viewModelScope.launch {
             IconCache.clear()
-            _apps.value = appRepo.loadApps()
+            val list = appRepo.loadApps()
+            _apps.value = list
+            val first = (favorites.value + homeApps.value).toSet()
+            val ordered = list.sortedByDescending { it.packageName in first }
+            withContext(Dispatchers.Default) {
+                for (app in ordered) {
+                    IconCache.load(ctx, app.packageName)
+                    yield()
+                }
+            }
         }
     }
 
@@ -273,7 +305,9 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     suspend fun refreshRunning() {
         if (!RootManager.isGranted) return
         val installed = _apps.value.map { it.packageName }.toSet()
-        _running.value = ProcessManager.getRunningApps(installed).associateBy { it.packageName }
+        _running.value = ProcessManager.getRunningApps(installed)
+            .map { it.copy(rssKb = it.rssKb / 4096L * 4096L) }
+            .associateBy { it.packageName }
     }
 
     private fun postMessage(message: UiMessage) {

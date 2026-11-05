@@ -9,17 +9,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
+private val GlassFill: Brush = Brush.verticalGradient(listOf(Color(0x40FFFFFF), Color(0x1AFFFFFF)))
+
+private val GlassBorder: Brush =
+    Brush.verticalGradient(listOf(Color(0x80FFFFFF), Color(0x1FFFFFFF), Color(0x55FFFFFF)))
+
 fun Modifier.liquidGlass(shape: Shape): Modifier = this
     .clip(shape)
-    .background(
-        Brush.verticalGradient(
-            listOf(Color(0x40FFFFFF), Color(0x1AFFFFFF))
-        )
-    )
-    .border(
-        width = 1.dp,
-        brush = Brush.verticalGradient(
-            listOf(Color(0x80FFFFFF), Color(0x1FFFFFFF), Color(0x55FFFFFF))
-        ),
-        shape = shape
-    )
+    .background(GlassFill)
+    .border(width = 1.dp, brush = GlassBorder, shape = shape)

@@ -35,7 +35,7 @@ class ProtectionService : Service() {
         private const val TAG = "ProtectionService"
         private const val CHANNEL_ID = "cloud_protection"
         private const val NOTIFICATION_ID = 1001
-        private const val INTERVAL_MS = 2_000L
+        private const val INTERVAL_MS = 4_000L
         private const val RELAUNCH_COOLDOWN_MS = 15_000L
         private const val ROOT_RETRY_MS = 15_000L
 

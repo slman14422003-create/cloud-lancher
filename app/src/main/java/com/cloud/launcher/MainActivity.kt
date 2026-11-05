@@ -10,13 +10,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -149,10 +147,10 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int, recentsSignal: Int, rec
         NavHost(
             navController = nav,
             startDestination = Routes.HOME,
-            enterTransition = { fadeIn(tween(150)) },
-            exitTransition = { fadeOut(tween(110)) },
-            popEnterTransition = { fadeIn(tween(150)) },
-            popExitTransition = { fadeOut(tween(110)) }
+            enterTransition = { fadeIn(tween(110)) },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { fadeOut(tween(90)) }
         ) {
             composable(Routes.HOME) {
                 HomeScreen(
@@ -162,18 +160,7 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int, recentsSignal: Int, rec
                     onOpenProtected = { nav.navigate(Routes.PROTECTED) { launchSingleTop = true } }
                 )
             }
-            composable(
-                route = Routes.DRAWER,
-                enterTransition = {
-                    fadeIn(tween(250)) + scaleIn(
-                        initialScale = 0.92f,
-                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-                    )
-                },
-                popExitTransition = {
-                    fadeOut(tween(180)) + scaleOut(targetScale = 0.92f, animationSpec = tween(180))
-                }
-            ) {
+            composable(Routes.DRAWER) {
                 AppDrawerScreen(vm = vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.RECENTS) {

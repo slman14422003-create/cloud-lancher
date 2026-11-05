@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -47,6 +48,8 @@ class PrefsManager(context: Context) {
         val DISMISSED = stringPreferencesKey("dismissed_recents")
         val SORT_BY_USAGE = booleanPreferencesKey("sort_by_usage")
         val SETUP_SHOWN = booleanPreferencesKey("setup_shown")
+        val COMPILED_VERSION = intPreferencesKey("compiled_version")
+        val HOME_HINT_SHOWN = booleanPreferencesKey("home_hint_shown")
     }
 
     private val data: Flow<Preferences> = store.data.catch { e ->
@@ -61,6 +64,8 @@ class PrefsManager(context: Context) {
     val dismissedRecents: Flow<Map<String, Long>> = data.map { it[Keys.DISMISSED].toLongMap() }
     val sortByUsage: Flow<Boolean> = data.map { it[Keys.SORT_BY_USAGE] ?: false }
     val setupShown: Flow<Boolean> = data.map { it[Keys.SETUP_SHOWN] ?: false }
+    val compiledVersion: Flow<Int> = data.map { it[Keys.COMPILED_VERSION] ?: 0 }
+    val homeHintShown: Flow<Boolean> = data.map { it[Keys.HOME_HINT_SHOWN] ?: false }
 
     suspend fun setProtected(list: List<String>) {
         store.edit { it[Keys.PROTECTED] = list.joinToString(",") }
@@ -88,6 +93,14 @@ class PrefsManager(context: Context) {
 
     suspend fun setSetupShown(value: Boolean) {
         store.edit { it[Keys.SETUP_SHOWN] = value }
+    }
+
+    suspend fun setCompiledVersion(value: Int) {
+        store.edit { it[Keys.COMPILED_VERSION] = value }
+    }
+
+    suspend fun setHomeHintShown(value: Boolean) {
+        store.edit { it[Keys.HOME_HINT_SHOWN] = value }
     }
 
     suspend fun incrementLaunch(pkg: String) {

@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -35,9 +36,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cloud.launcher.ui.theme.CloudAccent
@@ -87,8 +89,7 @@ fun ClockWidget(modifier: Modifier = Modifier) {
             text = time,
             style = MaterialTheme.typography.displayLarge.copy(
                 fontSize = 86.sp,
-                brush = Brush.verticalGradient(listOf(Color.White, Color(0xFFB3E5FC))),
-                shadow = Shadow(color = CloudAccent.copy(alpha = 0.40f), blurRadius = 36f)
+                brush = Brush.verticalGradient(listOf(Color.White, Color(0xFFB3E5FC)))
             )
         )
         Spacer(Modifier.height(6.dp))
@@ -106,16 +107,18 @@ fun ClockWidget(modifier: Modifier = Modifier) {
             Text(text = date, color = CloudWhite, style = MaterialTheme.typography.bodyMedium)
         }
         Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (battery >= 0) {
-                StatChip(
-                    icon = Icons.Filled.BatteryFull,
-                    text = "$battery%",
-                    tint = if (battery <= 15) Color(0xFFFF5252) else CloudSuccess
-                )
-            }
-            if (freeMb >= 0) {
-                StatChip(icon = Icons.Filled.Memory, text = "$freeMb MB", tint = CloudAccent)
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (battery >= 0) {
+                    StatChip(
+                        icon = Icons.Filled.BatteryFull,
+                        text = "$battery%",
+                        tint = if (battery <= 15) Color(0xFFFF5252) else CloudSuccess
+                    )
+                }
+                if (freeMb >= 0) {
+                    StatChip(icon = Icons.Filled.Memory, text = "$freeMb MB", tint = CloudAccent)
+                }
             }
         }
     }

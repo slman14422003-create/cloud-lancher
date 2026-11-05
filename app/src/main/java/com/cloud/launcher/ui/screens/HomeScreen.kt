@@ -1,5 +1,8 @@
 package com.cloud.launcher.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -17,12 +20,15 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material3.Icon
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import com.cloud.launcher.ui.theme.CloudAccent
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import com.cloud.launcher.ui.theme.CloudWhite
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
@@ -40,6 +46,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,6 +75,12 @@ import com.cloud.launcher.ui.theme.CloudGray
 
 private const val GRID_COLUMNS = 4
 
+private val HomeBackground: Brush = Brush.verticalGradient(
+    0f to Color(0xFF0A2236),
+    0.5f to Color(0xFF000000),
+    1f to Color(0xFF000000)
+)
+
 @Composable
 fun HomeScreen(
     vm: LauncherViewModel,
@@ -80,6 +93,16 @@ fun HomeScreen(
     val appMap by vm.appMap.collectAsStateWithLifecycle()
     var menuApp by remember { mutableStateOf<AppInfo?>(null) }
     val currentOpenDrawer by rememberUpdatedState(onOpenDrawer)
+    var hintVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        val alreadyShown = vm.homeHintShown.filterNotNull().first()
+        if (!alreadyShown) {
+            hintVisible = true
+            vm.markHomeHintShown()
+            delay(15_000L)
+            hintVisible = false
+        }
+    }
     val favApps = remember(favorites, appMap) {
         favorites.mapNotNull { appMap[it] }.take(LauncherViewModel.MAX_FAVORITES)
     }
@@ -90,15 +113,14 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF071826), CloudBlack, CloudBlack)))
-            .drawBehind {
-                drawRect(
-                    Brush.radialGradient(
-                        colors = listOf(CloudAccent.copy(alpha = 0.18f), Color.Transparent),
-                        center = Offset(size.width / 2f, size.height * 0.12f),
-                        radius = size.width * 0.95f
-                    )
+            .background(HomeBackground)
+            .drawWithCache {
+                val glow = Brush.radialGradient(
+                    colors = listOf(CloudAccent.copy(alpha = 0.12f), Color.Transparent),
+                    center = Offset(size.width / 2f, size.height * 0.10f),
+                    radius = size.width * 0.8f
                 )
+                onDrawBehind { drawRect(glow) }
             }
     ) {
         Column(
@@ -126,10 +148,14 @@ fun HomeScreen(
             ) {
                 if (homeApps.isEmpty()) {
                     if (favApps.isEmpty()) {
-                        EmptyHomeCard(
-                            onOpenDrawer = currentOpenDrawer,
+                        AnimatedVisibility(
+                            visible = hintVisible,
+                            enter = fadeIn(),
+                            exit = fadeOut(),
                             modifier = Modifier.align(Alignment.Center)
-                        )
+                        ) {
+                            EmptyHomeCard(onOpenDrawer = currentOpenDrawer)
+                        }
                     }
                 } else {
                     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -212,9 +238,7 @@ private fun SearchPill(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(shape)
-            .background(CloudWhite.copy(alpha = 0.08f))
-            .border(1.dp, CloudWhite.copy(alpha = 0.14f), shape)
+            .liquidGlass(shape)
             .clickable(onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -241,7 +265,7 @@ private fun EmptyHomeCard(onOpenDrawer: () -> Unit, modifier: Modifier = Modifie
     val shape = RoundedCornerShape(28.dp)
     Column(
         modifier = modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 8.dp)
             .liquidGlass(shape)
             .clickable(onClick = onOpenDrawer)
             .padding(horizontal = 22.dp, vertical = 22.dp),
