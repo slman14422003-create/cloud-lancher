@@ -2,7 +2,9 @@ package com.cloud.launcher.utils
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -13,6 +15,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
+import com.cloud.launcher.data.ClockFormat
+import com.cloud.launcher.data.ClockStyle
+import com.cloud.launcher.data.DrawerBackground
+import com.cloud.launcher.data.DrawerLayout
+import com.cloud.launcher.data.GlassType
+import com.cloud.launcher.data.IconShape
+import com.cloud.launcher.data.LauncherSettings
 
 private val Context.cloudDataStore: DataStore<Preferences> by preferencesDataStore(name = "cloud_launcher_prefs")
 
@@ -34,6 +43,69 @@ private fun String?.toLongMap(): Map<String, Long> {
 
 private fun Map<String, Long>.encode(): String =
     this.entries.joinToString(",") { it.key + ":" + it.value }
+
+private inline fun <reified E : Enum<E>> String?.toEnum(default: E): E =
+    if (this == null) default else enumValues<E>().firstOrNull { it.name == this } ?: default
+
+private object SettingsKeys {
+    val CLOCK_FORMAT = stringPreferencesKey("set_clock_format")
+    val CLOCK_STYLE = stringPreferencesKey("set_clock_style")
+    val SHOW_AMPM = booleanPreferencesKey("set_show_ampm")
+    val SHOW_DATE = booleanPreferencesKey("set_show_date")
+    val SHOW_STATS = booleanPreferencesKey("set_show_stats")
+    val ACCENT = intPreferencesKey("set_accent")
+    val BACKGROUND = intPreferencesKey("set_background")
+    val GLASS_TYPE = stringPreferencesKey("set_glass_type")
+    val GLASS_TINT = intPreferencesKey("set_glass_tint")
+    val GLASS_INTENSITY = floatPreferencesKey("set_glass_intensity")
+    val DRAWER_LAYOUT = stringPreferencesKey("set_drawer_layout")
+    val DRAWER_COLUMNS = intPreferencesKey("set_drawer_columns")
+    val DRAWER_ICON_SIZE = intPreferencesKey("set_drawer_icon_size")
+    val DRAWER_LABELS = booleanPreferencesKey("set_drawer_labels")
+    val ICON_SHAPE = stringPreferencesKey("set_icon_shape")
+    val DRAWER_BG = stringPreferencesKey("set_drawer_bg")
+}
+
+private fun Preferences.toSettings(): LauncherSettings {
+    val d = LauncherSettings()
+    return LauncherSettings(
+        clockFormat = this[SettingsKeys.CLOCK_FORMAT].toEnum(d.clockFormat),
+        clockStyle = this[SettingsKeys.CLOCK_STYLE].toEnum(d.clockStyle),
+        showAmPm = this[SettingsKeys.SHOW_AMPM] ?: d.showAmPm,
+        showDate = this[SettingsKeys.SHOW_DATE] ?: d.showDate,
+        showStats = this[SettingsKeys.SHOW_STATS] ?: d.showStats,
+        accentIndex = this[SettingsKeys.ACCENT] ?: d.accentIndex,
+        backgroundIndex = this[SettingsKeys.BACKGROUND] ?: d.backgroundIndex,
+        glassType = this[SettingsKeys.GLASS_TYPE].toEnum(d.glassType),
+        glassTintIndex = this[SettingsKeys.GLASS_TINT] ?: d.glassTintIndex,
+        glassIntensity = this[SettingsKeys.GLASS_INTENSITY] ?: d.glassIntensity,
+        drawerLayout = this[SettingsKeys.DRAWER_LAYOUT].toEnum(d.drawerLayout),
+        drawerColumns = this[SettingsKeys.DRAWER_COLUMNS] ?: d.drawerColumns,
+        drawerIconSize = this[SettingsKeys.DRAWER_ICON_SIZE] ?: d.drawerIconSize,
+        drawerShowLabels = this[SettingsKeys.DRAWER_LABELS] ?: d.drawerShowLabels,
+        iconShape = this[SettingsKeys.ICON_SHAPE].toEnum(d.iconShape),
+        drawerBackground = this[SettingsKeys.DRAWER_BG].toEnum(d.drawerBackground)
+    )
+}
+
+private fun MutablePreferences.putSettings(s: LauncherSettings) {
+    this[SettingsKeys.CLOCK_FORMAT] = s.clockFormat.name
+    this[SettingsKeys.CLOCK_STYLE] = s.clockStyle.name
+    this[SettingsKeys.SHOW_AMPM] = s.showAmPm
+    this[SettingsKeys.SHOW_DATE] = s.showDate
+    this[SettingsKeys.SHOW_STATS] = s.showStats
+    this[SettingsKeys.ACCENT] = s.accentIndex
+    this[SettingsKeys.BACKGROUND] = s.backgroundIndex
+    this[SettingsKeys.GLASS_TYPE] = s.glassType.name
+    this[SettingsKeys.GLASS_TINT] = s.glassTintIndex
+    this[SettingsKeys.GLASS_INTENSITY] = s.glassIntensity
+    this[SettingsKeys.DRAWER_LAYOUT] = s.drawerLayout.name
+    this[SettingsKeys.DRAWER_COLUMNS] = s.drawerColumns
+    this[SettingsKeys.DRAWER_ICON_SIZE] = s.drawerIconSize
+    this[SettingsKeys.DRAWER_LABELS] = s.drawerShowLabels
+    this[SettingsKeys.ICON_SHAPE] = s.iconShape.name
+    this[SettingsKeys.DRAWER_BG] = s.drawerBackground.name
+}
 
 class PrefsManager(context: Context) {
 
@@ -66,6 +138,12 @@ class PrefsManager(context: Context) {
     val setupShown: Flow<Boolean> = data.map { it[Keys.SETUP_SHOWN] ?: false }
     val compiledVersion: Flow<Int> = data.map { it[Keys.COMPILED_VERSION] ?: 0 }
     val homeHintShown: Flow<Boolean> = data.map { it[Keys.HOME_HINT_SHOWN] ?: false }
+
+    val settings: Flow<LauncherSettings> = data.map { it.toSettings() }
+
+    suspend fun updateSettings(transform: (LauncherSettings) -> LauncherSettings) {
+        store.edit { prefs -> prefs.putSettings(transform(prefs.toSettings())) }
+    }
 
     suspend fun setProtected(list: List<String>) {
         store.edit { it[Keys.PROTECTED] = list.joinToString(",") }
