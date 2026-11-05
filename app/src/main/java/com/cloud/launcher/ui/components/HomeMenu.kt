@@ -61,7 +61,7 @@ fun HomeMenuButton(
     onOpenLibrary: () -> Unit,
     onOpenRecents: () -> Unit,
     onOpenProtected: () -> Unit,
-    onOpenSetup: () -> Unit,
+    onOpenSystemSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var open by remember { mutableStateOf(false) }
@@ -115,9 +115,9 @@ fun HomeMenuButton(
                             onOpenProtected()
                         }
                         MenuDivider()
-                        MenuRow(Icons.Filled.Settings, stringResource(R.string.home_setup)) {
+                        MenuRow(Icons.Filled.Settings, stringResource(R.string.home_system_settings)) {
                             open = false
-                            onOpenSetup()
+                            onOpenSystemSettings()
                         }
                     }
                 }

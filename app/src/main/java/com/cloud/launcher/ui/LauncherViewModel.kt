@@ -24,9 +24,12 @@ import com.cloud.launcher.service.ProtectionService
 import com.cloud.launcher.ui.components.IconCache
 import com.cloud.launcher.utils.PermissionUtils
 import com.cloud.launcher.utils.PrefsManager
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -51,6 +54,12 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         val defaultLauncher: Boolean = false,
         val systemApp: Boolean = false,
         val systemUpdated: Boolean = false
+    )
+
+    data class UiMessage(
+        val text: String,
+        val actionLabel: String? = null,
+        val action: (() -> Unit)? = null
     )
 
     enum class InstallPhase { IDLE, RUNNING, COPIED, FAILED }
@@ -114,6 +123,15 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     private val _systemInstall = MutableStateFlow(SystemInstallState())
     val systemInstall: StateFlow<SystemInstallState> = _systemInstall.asStateFlow()
+
+    private val _messages = MutableSharedFlow<UiMessage>(extraBufferCapacity = 8)
+    val messages: SharedFlow<UiMessage> = _messages.asSharedFlow()
+
+    private val _closing = MutableStateFlow<Set<String>>(emptySet())
+    val closing: StateFlow<Set<String>> = _closing.asStateFlow()
+
+    private val _killingAll = MutableStateFlow(false)
+    val killingAll: StateFlow<Boolean> = _killingAll.asStateFlow()
 
     private val _showSetup = MutableStateFlow(false)
     val showSetup: StateFlow<Boolean> = _showSetup.asStateFlow()
@@ -258,35 +276,97 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         _running.value = ProcessManager.getRunningApps(installed).associateBy { it.packageName }
     }
 
+    private fun postMessage(message: UiMessage) {
+        if (_messages.subscriptionCount.value > 0) _messages.tryEmit(message) else toast(message.text)
+    }
+
+    private fun labelOf(packageName: String): String = appMap.value[packageName]?.label ?: packageName
+
     fun forceStop(packageName: String) {
+        viewModelScope.launch { closeApp(packageName) }
+    }
+
+    suspend fun closeApp(packageName: String): Boolean {
+        if (packageName == ctx.packageName || packageName in _closing.value) return false
+        val label = labelOf(packageName)
+        if (packageName in protectedPkgs.value) {
+            postMessage(
+                UiMessage(
+                    str(R.string.toast_cannot_close_protected),
+                    str(R.string.action_unprotect_close)
+                ) { unprotectAndClose(packageName) }
+            )
+            return false
+        }
+        _closing.value = _closing.value + packageName
+        var ok: Boolean
+        var freedKb = 0L
+        if (RootManager.isGranted) {
+            val result = ProcessManager.closePackage(packageName)
+            ok = result.ok
+            freedKb = result.freedKb
+        } else {
+            ProcessManager.killBackground(ctx, packageName)
+            ok = true
+        }
+        _closing.value = _closing.value - packageName
+        val freedMb = freedKb / 1024L
+        when {
+            !RootManager.isGranted ->
+                postMessage(UiMessage(ctx.getString(R.string.msg_closed_noroot, label)))
+            !ok ->
+                postMessage(
+                    UiMessage(
+                        ctx.getString(R.string.msg_close_failed, label),
+                        str(R.string.action_retry)
+                    ) { forceStop(packageName) }
+                )
+            freedMb > 0L ->
+                postMessage(UiMessage(ctx.getString(R.string.msg_closed_freed, label, freedMb)))
+            else ->
+                postMessage(UiMessage(ctx.getString(R.string.msg_closed, label)))
+        }
+        refreshRunning()
+        return ok
+    }
+
+    private fun unprotectAndClose(packageName: String) {
         viewModelScope.launch {
-            if (!RootManager.isGranted) {
-                toast(str(R.string.root_required))
-                return@launch
-            }
-            if (packageName in protectedPkgs.value) {
-                toast(str(R.string.toast_cannot_close_protected))
-                return@launch
-            }
-            ProcessManager.forceStop(packageName)
-            refreshRunning()
+            protectedRepo.remove(packageName)
+            if (RootManager.isGranted) OomController.unprotectApp(packageName)
+            if (closeApp(packageName)) recentRepo.remove(packageName)
         }
     }
 
     fun killAll() {
         viewModelScope.launch {
+            if (_killingAll.value) return@launch
             if (!RootManager.isGranted) {
-                toast(str(R.string.root_required))
+                postMessage(UiMessage(str(R.string.root_required)))
                 return@launch
             }
             val protectedSet = protectedPkgs.value.toSet()
-            val targets = recentPkgs.value.filter { it !in protectedSet }
-            val closed = ProcessManager.killAll(targets)
-            toast(ctx.getString(R.string.toast_killed, closed))
+            val targets = recentPkgs.value.filter { it !in protectedSet && it != ctx.packageName }
+            if (targets.isEmpty()) {
+                postMessage(UiMessage(str(R.string.recents_nothing_to_close)))
+                return@launch
+            }
+            _killingAll.value = true
+            val result = ProcessManager.killAll(targets)
+            recentRepo.removeAll(result.closed)
+            _killingAll.value = false
+            postMessage(UiMessage(ctx.getString(R.string.recents_killed_freed, result.closed.size, result.freedKb / 1024L)))
             refreshRunning()
         }
     }
 
+    fun removeFromRecentsNow(packageName: String) {
+        viewModelScope.launch { recentRepo.remove(packageName) }
+    }
+
+    fun openSystemSettings() {
+        PermissionUtils.openSystemSettings(ctx)
+    }
 
     fun toggleProtect(packageName: String) {
         viewModelScope.launch {
@@ -380,11 +460,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     fun rebootToApplySystem() {
         viewModelScope.launch { SystemInstaller.removeUserCopyAndReboot(ctx) }
-    }
-
-    fun openSetup() {
-        refreshPermissions()
-        _showSetup.value = true
     }
 
     fun finishSetup() {

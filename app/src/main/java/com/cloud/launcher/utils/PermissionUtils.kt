@@ -68,6 +68,10 @@ object PermissionUtils {
         startSafely(context, Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
     }
 
+    fun openSystemSettings(context: Context) {
+        startSafely(context, Intent(Settings.ACTION_SETTINGS))
+    }
+
     fun openNotificationSettings(context: Context) {
         val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)

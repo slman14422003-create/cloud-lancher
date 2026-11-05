@@ -1,6 +1,29 @@
 package com.cloud.launcher.ui.screens
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material3.Icon
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import com.cloud.launcher.ui.theme.CloudAccent
+import com.cloud.launcher.ui.theme.CloudWhite
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -12,6 +35,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -63,7 +87,20 @@ fun HomeScreen(
         homePkgs.mapNotNull { appMap[it] }.take(LauncherViewModel.MAX_HOME)
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(CloudBlack)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Brush.verticalGradient(listOf(Color(0xFF071826), CloudBlack, CloudBlack)))
+            .drawBehind {
+                drawRect(
+                    Brush.radialGradient(
+                        colors = listOf(CloudAccent.copy(alpha = 0.18f), Color.Transparent),
+                        center = Offset(size.width / 2f, size.height * 0.12f),
+                        radius = size.width * 0.95f
+                    )
+                )
+            }
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -89,12 +126,9 @@ fun HomeScreen(
             ) {
                 if (homeApps.isEmpty()) {
                     if (favApps.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.home_hint),
-                            color = CloudGray,
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.align(Alignment.Center).padding(24.dp)
+                        EmptyHomeCard(
+                            onOpenDrawer = currentOpenDrawer,
+                            modifier = Modifier.align(Alignment.Center)
                         )
                     }
                 } else {
@@ -116,7 +150,10 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
+            SearchPill(
+                onClick = currentOpenDrawer,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+            )
 
             Box(
                 modifier = Modifier
@@ -157,7 +194,7 @@ fun HomeScreen(
                     onOpenLibrary = onOpenDrawer,
                     onOpenRecents = onOpenRecents,
                     onOpenProtected = onOpenProtected,
-                    onOpenSetup = { vm.openSetup() },
+                    onOpenSystemSettings = { vm.openSystemSettings() },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(top = 10.dp, end = 20.dp)
@@ -167,4 +204,76 @@ fun HomeScreen(
     }
 
     menuApp?.let { app -> AppContextMenu(app = app, vm = vm, onDismiss = { menuApp = null }) }
+}
+
+@Composable
+private fun SearchPill(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val shape = RoundedCornerShape(50)
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(CloudWhite.copy(alpha = 0.08f))
+            .border(1.dp, CloudWhite.copy(alpha = 0.14f), shape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(Icons.Filled.Search, contentDescription = null, tint = CloudAccent, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(10.dp))
+        Text(
+            text = stringResource(R.string.search_hint),
+            color = CloudGray,
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+private fun EmptyHomeCard(onOpenDrawer: () -> Unit, modifier: Modifier = Modifier) {
+    val bounce = rememberInfiniteTransition(label = "hint")
+    val offset by bounce.animateFloat(
+        initialValue = 0f,
+        targetValue = -10f,
+        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
+        label = "hintOffset"
+    )
+    val shape = RoundedCornerShape(28.dp)
+    Column(
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .liquidGlass(shape)
+            .clickable(onClick = onOpenDrawer)
+            .padding(horizontal = 22.dp, vertical = 22.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(CircleShape)
+                .background(Brush.radialGradient(listOf(CloudAccent.copy(alpha = 0.35f), Color.Transparent))),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(Icons.Filled.Apps, contentDescription = null, tint = CloudAccent, modifier = Modifier.size(28.dp))
+        }
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.home_hint),
+            color = CloudWhite,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(Modifier.height(10.dp))
+        Icon(
+            Icons.Filled.KeyboardArrowUp,
+            contentDescription = null,
+            tint = CloudAccent,
+            modifier = Modifier.size(26.dp).graphicsLayer { translationY = offset }
+        )
+        Text(
+            text = stringResource(R.string.home_swipe_hint),
+            color = CloudGray,
+            style = MaterialTheme.typography.labelSmall
+        )
+    }
 }

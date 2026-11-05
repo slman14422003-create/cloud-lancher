@@ -32,6 +32,15 @@ class RecentAppsRepository(private val prefs: PrefsManager) {
         prefs.setDismissed(dismissed)
     }
 
+    suspend fun removeAll(packages: Collection<String>) {
+        if (packages.isEmpty()) return
+        val now = System.currentTimeMillis()
+        prefs.setRecents(recents.first().filter { it !in packages })
+        val dismissed = prefs.dismissedRecents.first().toMutableMap()
+        for (pkg in packages) dismissed[pkg] = now
+        prefs.setDismissed(dismissed)
+    }
+
     suspend fun clear() {
         val now = System.currentTimeMillis()
         val dismissed = prefs.dismissedRecents.first().toMutableMap()
