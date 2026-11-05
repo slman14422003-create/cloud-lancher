@@ -40,7 +40,6 @@ class RecentAppsRepository(private val prefs: PrefsManager) {
         prefs.setRecents(emptyList())
     }
 
-    /** يكمل القائمة من UsageStatsManager (آخر 24 ساعة) إذا كانت الصلاحية ممنوحة. */
     suspend fun syncFromUsageStats(context: Context) = withContext(Dispatchers.IO) {
         if (!PermissionUtils.hasUsageAccess(context)) return@withContext
         try {
@@ -70,7 +69,6 @@ class RecentAppsRepository(private val prefs: PrefsManager) {
             val merged = (current + fromUsage.filter { it !in current }).take(MAX_RECENTS)
             if (merged != current) prefs.setRecents(merged)
         } catch (e: Exception) {
-            // تجاهل: الصلاحية قد تُسحب أثناء التنفيذ
         }
     }
 }

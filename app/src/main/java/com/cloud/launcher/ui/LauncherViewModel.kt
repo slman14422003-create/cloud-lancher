@@ -38,6 +38,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     companion object {
         const val MAX_FAVORITES = 5
+        const val MAX_HOME = 16
     }
 
     data class SetupState(
@@ -70,6 +71,9 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     val favorites: StateFlow<List<String>> =
         prefs.favoriteApps.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val homeApps: StateFlow<List<String>> =
+        prefs.homeApps.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val protectedPkgs: StateFlow<List<String>> =
         protectedRepo.protectedApps.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -149,7 +153,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         try {
             ctx.unregisterReceiver(packageReceiver)
         } catch (e: Exception) {
-            // غير مسجّل
         }
         super.onCleared()
     }
@@ -160,7 +163,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     private fun str(id: Int): String = ctx.getString(id)
 
-    // ---------- التطبيقات ----------
 
     fun refreshApps() {
         viewModelScope.launch {
@@ -192,7 +194,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     fun uninstall(packageName: String) = appRepo.uninstall(packageName)
 
-    // ---------- المفضلة ----------
 
     fun toggleFavorite(packageName: String) {
         viewModelScope.launch {
@@ -205,7 +206,25 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    // ---------- الأخيرة المخصصة ----------
+    fun toggleHome(packageName: String) {
+        viewModelScope.launch {
+            val current = homeApps.value
+            when {
+                packageName in current -> prefs.setHomeApps(current - packageName)
+                current.size >= MAX_HOME -> toast(str(R.string.toast_grid_limit))
+                else -> prefs.setHomeApps(current + packageName)
+            }
+        }
+    }
+
+    fun setHomeOrder(order: List<String>) {
+        viewModelScope.launch { prefs.setHomeApps(order) }
+    }
+
+    fun setFavoritesOrder(order: List<String>) {
+        viewModelScope.launch { prefs.setFavorites(order.take(MAX_FAVORITES)) }
+    }
+
 
     fun addToRecents(packageName: String) {
         viewModelScope.launch { recentRepo.record(packageName) }
@@ -219,7 +238,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch { recentRepo.syncFromUsageStats(ctx) }
     }
 
-    // ---------- الروت ----------
 
     fun requestRoot() {
         viewModelScope.launch {
@@ -268,7 +286,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    // ---------- الحماية ----------
 
     fun toggleProtect(packageName: String) {
         viewModelScope.launch {
@@ -306,7 +323,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    // ---------- الإعداد ----------
 
     fun refreshPermissions() {
         _setup.value = SetupState(

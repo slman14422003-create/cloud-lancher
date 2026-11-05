@@ -9,7 +9,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
-/** تأثير زجاجي بأسلوب iOS 26 (Liquid Glass): تدرج شفاف + حد لامع رفيع. */
 fun Modifier.liquidGlass(shape: Shape): Modifier = this
     .clip(shape)
     .background(

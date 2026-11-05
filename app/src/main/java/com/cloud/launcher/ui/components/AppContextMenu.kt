@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,7 @@ import com.cloud.launcher.ui.theme.CloudWhite
 @Composable
 fun AppContextMenu(app: AppInfo, vm: LauncherViewModel, onDismiss: () -> Unit) {
     val favorites by vm.favorites.collectAsStateWithLifecycle()
+    val homeApps by vm.homeApps.collectAsStateWithLifecycle()
     val protectedPkgs by vm.protectedPkgs.collectAsStateWithLifecycle()
     val recents by vm.recentPkgs.collectAsStateWithLifecycle()
     val root by vm.rootAvailable.collectAsStateWithLifecycle()
@@ -65,7 +67,14 @@ fun AppContextMenu(app: AppInfo, vm: LauncherViewModel, onDismiss: () -> Unit) {
 
             MenuItem(
                 icon = Icons.Filled.Home,
-                text = stringResource(if (pkg in favorites) R.string.menu_remove_home else R.string.menu_add_home)
+                text = stringResource(if (pkg in homeApps) R.string.menu_remove_home else R.string.menu_add_home)
+            ) {
+                vm.toggleHome(pkg)
+                onDismiss()
+            }
+            MenuItem(
+                icon = Icons.Filled.Star,
+                text = stringResource(if (pkg in favorites) R.string.menu_remove_favorite else R.string.menu_add_favorite)
             ) {
                 vm.toggleFavorite(pkg)
                 onDismiss()

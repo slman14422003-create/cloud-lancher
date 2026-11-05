@@ -41,6 +41,7 @@ class PrefsManager(context: Context) {
     private object Keys {
         val PROTECTED = stringPreferencesKey("protected_apps")
         val FAVORITES = stringPreferencesKey("favorite_apps")
+        val HOME_APPS = stringPreferencesKey("home_apps")
         val RECENTS = stringPreferencesKey("recent_apps")
         val LAUNCH_COUNTS = stringPreferencesKey("launch_counts")
         val DISMISSED = stringPreferencesKey("dismissed_recents")
@@ -54,6 +55,7 @@ class PrefsManager(context: Context) {
 
     val protectedApps: Flow<List<String>> = data.map { it[Keys.PROTECTED].toPkgList() }
     val favoriteApps: Flow<List<String>> = data.map { it[Keys.FAVORITES].toPkgList() }
+    val homeApps: Flow<List<String>> = data.map { it[Keys.HOME_APPS].toPkgList() }
     val recentApps: Flow<List<String>> = data.map { it[Keys.RECENTS].toPkgList() }
     val launchCounts: Flow<Map<String, Long>> = data.map { it[Keys.LAUNCH_COUNTS].toLongMap() }
     val dismissedRecents: Flow<Map<String, Long>> = data.map { it[Keys.DISMISSED].toLongMap() }
@@ -66,6 +68,10 @@ class PrefsManager(context: Context) {
 
     suspend fun setFavorites(list: List<String>) {
         store.edit { it[Keys.FAVORITES] = list.joinToString(",") }
+    }
+
+    suspend fun setHomeApps(list: List<String>) {
+        store.edit { it[Keys.HOME_APPS] = list.joinToString(",") }
     }
 
     suspend fun setRecents(list: List<String>) {

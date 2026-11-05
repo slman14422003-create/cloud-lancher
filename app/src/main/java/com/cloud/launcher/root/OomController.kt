@@ -6,44 +6,63 @@ import kotlinx.coroutines.withContext
 
 object OomController {
 
-    /** نستعمل الرمز § بدل الدولار داخل النصوص الخام ثم نستبدله. */
     private fun sh(script: String): String = script.trimIndent().replace('§', '$')
 
+    private const val LIST_PROCS = """
+        PS_LIST=§(ps -A -o PID,NAME 2>/dev/null)
+        [ -z "§PS_LIST" ] && PS_LIST=§(ps 2>/dev/null | while read U P PP V R W PC S N; do echo "§P §N"; done)
+    """
+
     fun protectScript(pkg: String): String = sh(
-        """
-        for PID in §(pidof $pkg); do
-          echo -17 > /proc/§PID/oom_adj 2>/dev/null
-          echo -1000 > /proc/§PID/oom_score_adj 2>/dev/null
-          renice -n -20 -p §PID >/dev/null 2>&1 || renice -20 -p §PID >/dev/null 2>&1
+        LIST_PROCS + """
+        echo "§PS_LIST" | while read PID NAME; do
+          case "§NAME" in
+            "$pkg"|"$pkg":*)
+              echo -17 > /proc/§PID/oom_adj 2>/dev/null
+              echo -1000 > /proc/§PID/oom_score_adj 2>/dev/null
+              renice -n -20 -p §PID >/dev/null 2>&1 || renice -20 -p §PID >/dev/null 2>&1
+              ;;
+          esac
         done
         cmd deviceidle whitelist +$pkg >/dev/null 2>&1
         dumpsys deviceidle whitelist +$pkg >/dev/null 2>&1
+        cmd appops set $pkg RUN_IN_BACKGROUND allow >/dev/null 2>&1
+        cmd appops set $pkg RUN_ANY_IN_BACKGROUND allow >/dev/null 2>&1
+        appops set $pkg RUN_IN_BACKGROUND allow >/dev/null 2>&1
+        am set-inactive $pkg false >/dev/null 2>&1
         am set-standby-bucket $pkg active >/dev/null 2>&1
         """
     )
 
     fun unprotectScript(pkg: String): String = sh(
-        """
-        for PID in §(pidof $pkg); do
-          echo 0 > /proc/§PID/oom_adj 2>/dev/null
-          echo 0 > /proc/§PID/oom_score_adj 2>/dev/null
-          renice -n 0 -p §PID >/dev/null 2>&1 || renice 0 -p §PID >/dev/null 2>&1
+        LIST_PROCS + """
+        echo "§PS_LIST" | while read PID NAME; do
+          case "§NAME" in
+            "$pkg"|"$pkg":*)
+              echo 0 > /proc/§PID/oom_adj 2>/dev/null
+              echo 0 > /proc/§PID/oom_score_adj 2>/dev/null
+              renice -n 0 -p §PID >/dev/null 2>&1 || renice 0 -p §PID >/dev/null 2>&1
+              ;;
+          esac
         done
         cmd deviceidle whitelist -$pkg >/dev/null 2>&1
         dumpsys deviceidle whitelist -$pkg >/dev/null 2>&1
         """
     )
 
-    /** سكربت المراقبة: يعيد تطبيق oom_score_adj ويطبع "package pid" لكل تطبيق (0 = متوقف). */
     fun monitorScript(packages: List<String>): String = sh(
-        """
+        LIST_PROCS + """
         for PKG in ${packages.joinToString(" ")}; do
+          echo "§PS_LIST" | while read PID NAME; do
+            case "§NAME" in
+              "§PKG"|"§PKG":*)
+                echo -17 > /proc/§PID/oom_adj 2>/dev/null
+                echo -1000 > /proc/§PID/oom_score_adj 2>/dev/null
+                ;;
+            esac
+          done
           PIDS=§(pidof §PKG)
           if [ -n "§PIDS" ]; then
-            for PID in §PIDS; do
-              echo -17 > /proc/§PID/oom_adj 2>/dev/null
-              echo -1000 > /proc/§PID/oom_score_adj 2>/dev/null
-            done
             echo "§PKG §{PIDS%% *}"
           else
             echo "§PKG 0"
@@ -62,11 +81,6 @@ object OomController {
         ShellUtils.runAsRoot(unprotectScript(pkg)).exitCode == 0
     }
 
-    /**
-     * دورة مراقبة واحدة: تعيد قيم OOM لكل التطبيقات المحمية،
-     * وإذا تغيّر PID (أعاد النظام تشغيله) تطبّق سكربت الحماية الكامل من جديد.
-     * ترجع خريطة package -> pid (0 = التطبيق لا يعمل).
-     */
     suspend fun monitorAndReprotect(
         packages: List<String>,
         lastPids: MutableMap<String, Int>
@@ -92,7 +106,6 @@ object OomController {
         current
     }
 
-    /** يعيد تشغيل تطبيق محمي توقف. */
     suspend fun relaunchApp(pkg: String): Boolean = withContext(Dispatchers.IO) {
         if (!ShellUtils.isValidPackage(pkg)) return@withContext false
         ShellUtils.runAsRoot(

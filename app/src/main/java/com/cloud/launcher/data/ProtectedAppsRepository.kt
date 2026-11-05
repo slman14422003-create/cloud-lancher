@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.first
 class ProtectedAppsRepository(private val prefs: PrefsManager) {
 
     companion object {
-        const val MAX_PROTECTED = 5
+        const val MAX_PROTECTED = 8
     }
 
     enum class AddResult { ADDED, ALREADY, LIMIT_REACHED }

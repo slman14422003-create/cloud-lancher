@@ -10,7 +10,6 @@ object ShellUtils {
 
     private val PACKAGE_REGEX = Regex("^[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+)+$")
 
-    /** يمنع حقن الأوامر: لا يُسمح إلا بأسماء حزم صحيحة. */
     fun isValidPackage(name: String): Boolean = PACKAGE_REGEX.matches(name)
 
     fun runAsRoot(script: String, timeoutMs: Long = 20_000L): Result =
@@ -28,7 +27,6 @@ object ShellUtils {
                     Thread.sleep(timeoutMs)
                     process.destroy()
                 } catch (ignored: InterruptedException) {
-                    // انتهى الأمر قبل المهلة
                 }
             }
             watchdog.isDaemon = true
@@ -39,7 +37,6 @@ object ShellUtils {
                 try {
                     process.errorStream.bufferedReader().use { errBuilder.append(it.readText()) }
                 } catch (ignored: IOException) {
-                    // تجاهل
                 }
             }
             errThread.isDaemon = true
@@ -52,7 +49,6 @@ object ShellUtils {
                     writer.flush()
                 }
             } catch (ignored: IOException) {
-                // العملية أُغلقت مبكراً
             }
 
             val out = process.inputStream.bufferedReader().use { it.readText() }

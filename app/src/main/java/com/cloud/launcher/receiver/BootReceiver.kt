@@ -21,7 +21,6 @@ class BootReceiver : BroadcastReceiver() {
                 val repo = ProtectedAppsRepository(PrefsManager(appContext))
                 if (repo.current().isNotEmpty()) ProtectionService.start(appContext)
             } catch (e: Exception) {
-                // تجاهل: سيبدأ المستخدم الخدمة يدوياً عند فتح اللانشر
             } finally {
                 pending.finish()
             }

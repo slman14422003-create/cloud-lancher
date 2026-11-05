@@ -18,11 +18,6 @@ object ProcessManager {
         parsePs(result.stdout, installed)
     }
 
-    /**
-     * يحلل مخرجات ps بصيغتين:
-     * - الحديثة (toybox): PID RSS NAME
-     * - القديمة: USER PID PPID VSIZE RSS WCHAN PC S NAME
-     */
     fun parsePs(output: String, installed: Set<String>): List<RunningApp> {
         val pids = HashMap<String, Int>()
         val rss = HashMap<String, Long>()
