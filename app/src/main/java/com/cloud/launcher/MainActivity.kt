@@ -152,10 +152,10 @@ fun LauncherRoot(vm: LauncherViewModel, homeSignal: Int, recentsSignal: Int, rec
         NavHost(
             navController = nav,
             startDestination = Routes.HOME,
-            enterTransition = { fadeIn(tween(110)) },
+            enterTransition = { fadeIn(tween(90)) },
             exitTransition = { ExitTransition.None },
             popEnterTransition = { EnterTransition.None },
-            popExitTransition = { fadeOut(tween(90)) }
+            popExitTransition = { fadeOut(tween(70)) }
         ) {
             composable(Routes.HOME) {
                 HomeScreen(

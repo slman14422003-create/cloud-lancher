@@ -24,6 +24,7 @@
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
 
     <application
+        android:name=".CloudApp"
         android:allowBackup="false"
         android:hardwareAccelerated="true"
         android:persistent="true"

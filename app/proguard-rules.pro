@@ -5,3 +5,10 @@
 -keep class com.cloud.launcher.ui.LauncherViewModel { *; }
 -keep class com.cloud.launcher.root.RunningApp { *; }
 -dontwarn kotlin.**
+-keep class com.cloud.launcher.CloudApp { *; }
+-keep class com.cloud.launcher.root.** { *; }
+-keepclassmembers class * extends androidx.lifecycle.ViewModel { <init>(...); }
+-dontwarn androidx.compose.**
+-repackageclasses ''
+-allowaccessmodification
+-optimizationpasses 5

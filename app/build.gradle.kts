@@ -18,6 +18,8 @@ android {
         targetSdk = 34
         versionCode = autoVersionCode
         versionName = "1.0.$autoVersionCode"
+        resourceConfigurations += listOf("ar", "en")
+        vectorDrawables.useSupportLibrary = false
     }
 
     signingConfigs {
@@ -57,7 +59,10 @@ android {
         freeCompilerArgs += listOf(
             "-Xno-param-assertions",
             "-Xno-call-assertions",
-            "-Xno-receiver-assertions"
+            "-Xno-receiver-assertions",
+            "-Xjvm-default=all",
+            "-P",
+            "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true"
         )
     }
 
@@ -94,6 +99,9 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+    implementation("androidx.startup:startup-runtime:1.1.1")
+    implementation("androidx.tracing:tracing-ktx:1.2.0")
+    implementation("androidx.core:core-performance:1.0.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
